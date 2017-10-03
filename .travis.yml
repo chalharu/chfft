@@ -50,7 +50,7 @@ script:
   find ./target/debug/deps/chfft-* -print0 |
   xargs -0 which |
   while read -r f; do
-    {KCOV} $f
+    ${KCOV} $f
   done
 - |
   if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
