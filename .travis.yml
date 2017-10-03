@@ -20,6 +20,7 @@ addons:
     - libelf-dev
     - libdw-dev
     - binutils-dev
+    - libbfd-dev
 
 before_script:
 - |
@@ -28,13 +29,13 @@ before_script:
     export KCOV=""
   else
     export PATH=$HOME/.local/bin:$PATH
-    export KCOV="${TRAVIS_BUILD_DIR}/kcov/build/src/kcov --exclude-pattern=/.cargo --coveralls-id=${TRAVIS_JOB_ID} ${TRAVIS_BUILD_DIR}/coverage"
+    export KCOV="${TRAVIS_BUILD_DIR}/kcov/build/src/kcov --verify --exclude-pattern=/.cargo --coveralls-id=${TRAVIS_JOB_ID} ${TRAVIS_BUILD_DIR}/coverage"
   fi
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    wget https://github.com/SimonKagstrom/kcov/archive/master.zip
-    unzip master.zip
-    mv kcov-master kcov
+    wget https://github.com/SimonKagstrom/kcov/archive/v34.zip
+    unzip v34.zip
+    mv kcov-34 kcov
     mkdir kcov/build
     cd kcov/build
     cmake ..
@@ -47,12 +48,18 @@ script:
 - cargo test --release
 - cargo test --no-run
 - ${KCOV} ./target/debug/deps/chfft-*
-- if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
+- |
+  if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
       cargo bench --release --verbose
   fi
 
 after_success:
 - |
-  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    travis-cargo --only stable doc-upload
+  if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
+     [ "${TRAVIS_RUST_VERSION}" = "stable" ] &&
+     [ "${TRAVIS_BRANCH}" = "master" ] &&
+     [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+    pip install 'ghp-import' --user
+    ghp-import -n target/doc
+    git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
   fi
