@@ -1,17 +1,17 @@
 language: rust
 
 rust:
-  - stable
-  - beta
-  - nightly
+- stable
+- beta
+- nightly
 
 os:
-  - linux
-#  - osx
+- linux
+- osx
 
 matrix:
   allow_failures:
-    - rust: nightly
+  - rust: nightly
 
 addons:
   apt:
@@ -53,3 +53,7 @@ after_success:
     ghp-import -n target/doc
     git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
   fi
+
+env:
+  global:
+    secure: icvJlieEq74fOjxJYhhVCFHntfctl5yu61ecGrqMsDH4YOEY7vapqVHhWmWpJOcCftSF/vwxLvjFDAXcRgqVA/c7rX1eeeVmXsVoURayFecgO0qBMKPpeICawia56wVtyjcx+0H4IkExJ7MhYCmGUbPGREjOtTSK3MbJWG09CzL/VdEyWdyVZrV837rfhp4fUOPmrMhZaXRReTM5f+S6xn5+HbH8Q012GipoA+Xiun1WRAzdxR75lLh3UGLuyFBtZYXtU9A47NQb1vDRh0uXDM+bd9qiHu6JnARwp5nSNE9UuYtebD8p44/uzC6egifiOn12r06is3itWENKnZPnfCPRvKNX2zjPMCvwxN4Abm6K0prqmctxOZt1ByBYC6aznxtFIMValQw9erlwYpv9x/gQ0dAp/a0An/EPHqyUnB5EzFhHYBkrm009qWZQwMS2MHfNQR832XgumhcYB/j0/wJUox0Z6aj22gXNxenRaczLRf/Ho7/pPjIAHLBhxovkZtnMqsGlkbgcmCc7W/40OP8CZvdo2OkHN2MjomdPZibd2mEgRUvEQ28R3UdfUpd/3szsA7dtz4x2vlUA+vk+bd+lrBluEh8vJjZdLZ8zQ5T6aSfC+BHj3TMtx8GDOsxOK468QiBq88EbdJFxLb6LJQYsCRY2gKaCmdMzdAnb1/4=
