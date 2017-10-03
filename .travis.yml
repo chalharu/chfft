@@ -19,11 +19,14 @@ addons:
     - libcurl4-openssl-dev
     - libelf-dev
     - libdw-dev
+    - binutils-dev
+    - libiberty-dev
 
 before_script:
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     cargo install cargo-kcov
+    cargo kcov --print-install-kcov-sh | sh
   fi
 
 script:
