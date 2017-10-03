@@ -19,42 +19,25 @@ addons:
     - libcurl4-openssl-dev
     - libelf-dev
     - libdw-dev
-    - binutils-dev
 
 before_script:
 - |
-  if [ "${TRAVIS_OS_NAME}" = 'osx' ]; then
-    export PATH=$HOME/Library/Python/2.7/bin:$PATH
-    export KCOV=""
-  else
-    export PATH=$HOME/.local/bin:$PATH
-    export KCOV="${TRAVIS_BUILD_DIR}/kcov/build/src/kcov --verify --exclude-pattern=/.cargo --coveralls-id=${TRAVIS_JOB_ID} ${TRAVIS_BUILD_DIR}/coverage"
-  fi
-- |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    wget https://github.com/SimonKagstrom/kcov/archive/v34.zip
-    unzip v34.zip
-    mv kcov-34 kcov
-    mkdir kcov/build
-    cd kcov/build
-    cmake ..
-    make
-    cd ${TRAVIS_BUILD_DIR}
+    cargo install cargo-kcov
   fi
 
 script:
 - cargo build
-- cargo test --release
-- cargo test --no-run
 - |
-  find ./target/debug/deps/chfft-* -print0 |
-  xargs -0 which |
-  while read -r f; do
-    ${KCOV} $f
-  done
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    cargo kcov --coveralls
+  else
+    cargo test
+  fi
+- cargo test --release
 - |
   if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
-    cargo bench --release --verbose
+    cargo bench --verbose
   fi
 
 after_success:
