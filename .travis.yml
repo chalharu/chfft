@@ -46,10 +46,15 @@ script:
 - cargo build
 - cargo test --release
 - cargo test --no-run
-- ${KCOV} ./target/debug/deps/chfft-*
+- |
+  find ./target/debug/deps/chfft-* -print0 |
+  xargs -0 which |
+  while read -r f; do
+    {KCOV} $f
+  done
 - |
   if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
-      cargo bench --release --verbose
+    cargo bench --release --verbose
   fi
 
 after_success:
