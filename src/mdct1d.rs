@@ -125,7 +125,7 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
     /// mdct.setup(2048);
     /// ```
     pub fn setup(&mut self, len: usize) {
-        if len & 7 != 0 {
+        if len & 3 != 0 {
             panic!("invalid length")
         }
         self.len = len;
@@ -133,7 +133,7 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
         self.scaler_u = T::one() / cast::<_, T>(len >> 1).unwrap().sqrt();
         self.scaler_ui = cast::<_, T>(len >> 1).unwrap().sqrt();
         self.twiddle = Self::calc_twiddle(len);
-        self.work = vec![zero(); len >> 1];
+        self.work = vec![zero(); len >> 2];
         self.window_scaler = Self::calc_window(&self.window_func, len);
     }
 
@@ -410,6 +410,24 @@ mod tests {
     fn f64_with_new() {
         for i in 1..100 {
             test_with_len(&mut Mdct1D::<f64, _>::new(sine_window, i << 2), i << 2, &sine_window);
+        }
+    }
+
+    #[test]
+    fn f32_with_setup() {
+        for i in 1..100 {
+            let mut mdct = Mdct1D::<f32, _>::new(sine_window, i << 4);
+            mdct.setup(i << 2);
+            test_with_len(&mut mdct, i << 2, &sine_window);
+        }
+    }
+
+    #[test]
+    fn f64_with_setup() {
+        for i in 1..100 {
+            let mut mdct = Mdct1D::<f64, _>::new(sine_window, i << 4);
+            mdct.setup(i << 2);
+            test_with_len(&mut mdct, i << 2, &sine_window);
         }
     }
 }
