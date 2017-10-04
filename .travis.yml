@@ -49,11 +49,16 @@ after_success:
      [ "${TRAVIS_RUST_VERSION}" = "stable" ] &&
      [ "${TRAVIS_BRANCH}" = "master" ] &&
      [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+    cargo doc --no-deps
     pip install 'ghp-import' --user
     ghp-import -n target/doc
     git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+    cargo login ${CRATES_TOKEN}
+    cargo package
+    cargo publish
   fi
 
 env:
   global:
-    secure: icvJlieEq74fOjxJYhhVCFHntfctl5yu61ecGrqMsDH4YOEY7vapqVHhWmWpJOcCftSF/vwxLvjFDAXcRgqVA/c7rX1eeeVmXsVoURayFecgO0qBMKPpeICawia56wVtyjcx+0H4IkExJ7MhYCmGUbPGREjOtTSK3MbJWG09CzL/VdEyWdyVZrV837rfhp4fUOPmrMhZaXRReTM5f+S6xn5+HbH8Q012GipoA+Xiun1WRAzdxR75lLh3UGLuyFBtZYXtU9A47NQb1vDRh0uXDM+bd9qiHu6JnARwp5nSNE9UuYtebD8p44/uzC6egifiOn12r06is3itWENKnZPnfCPRvKNX2zjPMCvwxN4Abm6K0prqmctxOZt1ByBYC6aznxtFIMValQw9erlwYpv9x/gQ0dAp/a0An/EPHqyUnB5EzFhHYBkrm009qWZQwMS2MHfNQR832XgumhcYB/j0/wJUox0Z6aj22gXNxenRaczLRf/Ho7/pPjIAHLBhxovkZtnMqsGlkbgcmCc7W/40OP8CZvdo2OkHN2MjomdPZibd2mEgRUvEQ28R3UdfUpd/3szsA7dtz4x2vlUA+vk+bd+lrBluEh8vJjZdLZ8zQ5T6aSfC+BHj3TMtx8GDOsxOK468QiBq88EbdJFxLb6LJQYsCRY2gKaCmdMzdAnb1/4=
+  - secure: icvJlieEq74fOjxJYhhVCFHntfctl5yu61ecGrqMsDH4YOEY7vapqVHhWmWpJOcCftSF/vwxLvjFDAXcRgqVA/c7rX1eeeVmXsVoURayFecgO0qBMKPpeICawia56wVtyjcx+0H4IkExJ7MhYCmGUbPGREjOtTSK3MbJWG09CzL/VdEyWdyVZrV837rfhp4fUOPmrMhZaXRReTM5f+S6xn5+HbH8Q012GipoA+Xiun1WRAzdxR75lLh3UGLuyFBtZYXtU9A47NQb1vDRh0uXDM+bd9qiHu6JnARwp5nSNE9UuYtebD8p44/uzC6egifiOn12r06is3itWENKnZPnfCPRvKNX2zjPMCvwxN4Abm6K0prqmctxOZt1ByBYC6aznxtFIMValQw9erlwYpv9x/gQ0dAp/a0An/EPHqyUnB5EzFhHYBkrm009qWZQwMS2MHfNQR832XgumhcYB/j0/wJUox0Z6aj22gXNxenRaczLRf/Ho7/pPjIAHLBhxovkZtnMqsGlkbgcmCc7W/40OP8CZvdo2OkHN2MjomdPZibd2mEgRUvEQ28R3UdfUpd/3szsA7dtz4x2vlUA+vk+bd+lrBluEh8vJjZdLZ8zQ5T6aSfC+BHj3TMtx8GDOsxOK468QiBq88EbdJFxLb6LJQYsCRY2gKaCmdMzdAnb1/4=
+  - secure: KLV7rs+XXTb5xZ+LFzXqSza5alakyVZq5y6g5S2/iq5SK69YKHg7YREDiKHDSXDZIpuCJfdfQGB4rNZjsmAwqyA4TO62fEMdZWMelBQAZoLSZq8+s4SU6gHKXlNbcs5NNXmyz/h+Ga5SR2EEvw0vpN78kC7KcA4zLrG/knKVkbr5eBdg8Byruo+hzkFd2Ej6qg0FX+nGOfINzXZQBRuoaq2ZFgp/4o3MA1kHvKyB+e6AFkVRQnwVxrnwMDU90z3R6beSduJ518y6tyVyCPnzh1LF5uYwL7sISZvw3sKI10s6b/KF/64AoGXJEq+kfaLV6RpBnNSeDFKPl3b+Bnlagqb9M9CNU58UufTZJ5bnteDqP+41jzg9TUNmW6eajHgyW110BHFQrJg3TpV1ABassDgn4bHSkklS9Io6oLxhS+PgV0MzBszhMeC+gTFqsAogPsVunJu1F2Yb0XxzS9TqcMUj8zkUewusrKcvrh3X03b/5VPEsKahnY13fVwQunOoWyDgZxUxLSuXr66rQOqowz4I/8eu4A90/GNJupKZ7EOReguIeAQM8wRehxr9NVva98M7BUmQbnCS5auehe5gjMvOLVIRw+OAR3cC/zsvPw0ugtS7RSDkZyKF3czpPIn037OI4umdAe/vqkYKvSvtSSlNmaK4aehMlAnYppFADxo=
