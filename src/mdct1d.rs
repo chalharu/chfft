@@ -317,11 +317,7 @@ mod tests {
             .collect::<Vec<_>>();
     }
 
-    fn sine_window<T: Float + FloatConst>(l: usize, p: usize) -> T {
-        (T::PI() * (cast::<_, T>(p).unwrap() + cast(0.5).unwrap()) / cast(l).unwrap()).sin()
-    }
-
-    fn convert_back<T: Float + FloatConst, F>(window_func: F, source: &[T]) -> Vec<T>
+    fn convert_back<T: Float + FloatConst, F>(ref window_func: &F, source: &[T]) -> Vec<T>
     where
         F: Fn(usize, usize) -> T,
     {
@@ -343,14 +339,16 @@ mod tests {
     fn test_with_source<
         T: Float + FloatConst + NumAssign + Debug + NearlyEq,
         F: Fn(usize, usize) -> T,
+        G: Fn(usize, usize) -> T,
     >(
         mdct: &mut Mdct1D<T, F>,
         source: &[T],
+        window_func: &G,
     ) {
-        let expected = convert(sine_window, source);
+        let expected = convert(window_func, source);
         let actual = mdct.forward(source);
         assert_nearly_eq!(&expected, &actual);
-        let expected = convert_back(sine_window, &actual);
+        let expected = convert_back(window_func, &actual);
         let actual_source = mdct.backward(&actual);
         assert_nearly_eq!(&expected, &actual_source);
     }
@@ -358,30 +356,32 @@ mod tests {
     fn test_with_len<
         T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq,
         F: Fn(usize, usize) -> T,
+        G: Fn(usize, usize) -> T,
     >(
         mdct: &mut Mdct1D<T, F>,
         len: usize,
+        window_func: &G,
     ) {
         let mut rng = XorShiftRng::from_seed([189522394, 1694417663, 1363148323, 4087496301]);
 
         // 10パターンのテスト
         for _ in 0..10 {
             let arr = (0..len).map(|_| rng.gen::<T>()).collect::<Vec<T>>();
-            test_with_source(mdct, &arr);
+            test_with_source(mdct, &arr, window_func);
         }
     }
 
     #[test]
     fn f32_with_sine() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f32, _>::with_sine(i << 2), i << 2);
+            test_with_len(&mut Mdct1D::<f32, _>::with_sine(i << 2), i << 2, &sine_window);
         }
     }
 
     #[test]
     fn f64_with_sine() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f64, _>::with_sine(i << 2), i << 2);
+            test_with_len(&mut Mdct1D::<f64, _>::with_sine(i << 2), i << 2, &sine_window);
         }
     }
 }
