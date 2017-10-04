@@ -351,6 +351,9 @@ mod tests {
         let expected = convert_back(window_func, &actual);
         let actual_source = mdct.backward(&actual);
         assert_nearly_eq!(&expected, &actual_source);
+        let actual = mdct.forwardu(source);
+        let actual_source = mdct.backwardu(&actual);
+        assert_nearly_eq!(&expected, &actual_source);
     }
 
     fn test_with_len<
