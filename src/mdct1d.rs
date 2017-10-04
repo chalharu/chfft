@@ -384,4 +384,18 @@ mod tests {
             test_with_len(&mut Mdct1D::<f64, _>::with_sine(i << 2), i << 2, &sine_window);
         }
     }
+
+    #[test]
+    fn f32_with_vorbis() {
+        for i in 1..100 {
+            test_with_len(&mut Mdct1D::<f32, _>::with_vorbis(i << 2), i << 2, &vorbis_window);
+        }
+    }
+
+    #[test]
+    fn f64_with_vorbis() {
+        for i in 1..100 {
+            test_with_len(&mut Mdct1D::<f64, _>::with_vorbis(i << 2), i << 2, &vorbis_window);
+        }
+    }
 }
