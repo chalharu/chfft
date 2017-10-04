@@ -153,8 +153,6 @@ impl<T: Float + FloatConst + NumAssign> Dct1DWorkers<T> {
 
 trait DctWorker1D<T> {
     fn setup(&mut self, len: usize, is_ortho: bool);
-    fn len(&self) -> usize;
-    fn is_ortho(&self) -> bool;
     fn dct_type(&self) -> usize;
     fn unitary_scaler(&self) -> T;
     fn convert(&mut self, source: &[T], scaler: T) -> Vec<T>;
@@ -214,14 +212,6 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct2Worker1D<T> {
             one()
         };
         self.is_ortho = is_ortho;
-    }
-
-    fn len(&self) -> usize {
-        self.len
-    }
-
-    fn is_ortho(&self) -> bool {
-        self.is_ortho
     }
 
     fn dct_type(&self) -> usize {
@@ -345,14 +335,6 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
         self.is_ortho = is_ortho;
     }
 
-    fn len(&self) -> usize {
-        self.len
-    }
-
-    fn is_ortho(&self) -> bool {
-        self.is_ortho
-    }
-
     fn dct_type(&self) -> usize {
         3
     }
@@ -379,8 +361,8 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
         let qlen = (self.len + 3) >> 2;
 
         if self.len & 3 == 0 {
-            self.work[qlen] = Complex::new(source[qlen], source[self.len - qlen]) *
-                self.omega[qlen].scale(scaler);
+            self.work[qlen] = Complex::new(source[qlen], source[self.len - qlen])
+                * self.omega[qlen].scale(scaler);
         }
 
         for i in 1..qlen {
@@ -448,6 +430,19 @@ mod tests {
         assert_nearly_eq!(&expected, &actual);
         let actual_source = dct3.forwardu(&actual);
         assert_nearly_eq!(&source, &actual_source);
+        let expected = convert(
+            source,
+            cast::<_, T>(2).unwrap() / cast(source.len()).unwrap(),
+        );
+        let actual = dct2.forwardn(source);
+        assert_nearly_eq!(&expected, &actual);
+        let actual_source = dct3.forward0(&actual);
+        assert_nearly_eq!(&source, &actual_source);
+        let expected = convert(source, one());
+        let actual = dct2.forward0(source);
+        assert_nearly_eq!(&expected, &actual);
+        let actual_source = dct3.forwardn(&actual);
+        assert_nearly_eq!(&source, &actual_source);
     }
 
     fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq>(
@@ -484,6 +479,29 @@ mod tests {
                 &mut Dct1D::<f32>::new(3, i << 1, false),
                 i << 1,
             );
+        }
+    }
+
+    #[test]
+    fn f64_with_setup() {
+        for i in 1..100 {
+            let mut dct2 = Dct1D::<f64>::new(2, i << 2, true);
+            let mut dct3 = Dct1D::<f64>::new(2, i << 2, true);
+            dct2.setup(2, i << 1, false);
+            dct3.setup(3, i << 1, false);
+            test_with_len(&mut dct2, &mut dct3, i << 1);
+        }
+    }
+
+
+    #[test]
+    fn f32_with_setup() {
+        for i in 1..100 {
+            let mut dct2 = Dct1D::<f32>::new(3, i << 2, true);
+            let mut dct3 = Dct1D::<f32>::new(3, i << 2, true);
+            dct2.setup(2, i << 1, false);
+            dct3.setup(3, i << 1, false);
+            test_with_len(&mut dct2, &mut dct3, i << 1);
         }
     }
 }
