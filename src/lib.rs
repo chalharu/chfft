@@ -56,7 +56,13 @@ mod tests {
 
 #[cfg(test)]
 #[inline(always)]
-fn assert_nearly_eq<A: FloatEps + std::fmt::Debug, B: std::fmt::Debug + ?Sized,  C: nearly_eq::NearlyEq<B, A> + std::fmt::Debug + ?Sized>(expected: &C, actual: &B) {
+fn assert_nearly_eq<
+    A: FloatEps + std::fmt::Debug,
+    B: std::fmt::Debug + ?Sized,
+    C: nearly_eq::NearlyEq<B, A> + std::fmt::Debug + ?Sized,
+>(
+    expected: &C,
+    actual: &B,
+) {
     assert_nearly_eq!(expected, actual, A::eps());
 }
-
