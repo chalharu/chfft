@@ -5,7 +5,6 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/.
 
-#[derive(Copy, Clone)]
 pub struct Factor {
     pub value: usize,
     pub count: usize,
