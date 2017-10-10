@@ -41,7 +41,7 @@ before_script:
   fi
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    pippackage=("ghp-import","pytoml")
+    pippackage=("ghp-import" "pytoml")
     comm -13 <(pip freeze | cut -d= -f1 | sort) <(for i in ${pippackage[*]};do echo $i;done | sort) | grep -v '^#' | xargs pip install --user
     export CARGO_PACKAGE_NAME=$(python get_cargo_package_name.py)
     echo CARGO_PACKAGE_NAME=$CARGO_PACKAGE_NAME
