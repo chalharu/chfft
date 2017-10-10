@@ -15,7 +15,7 @@ extern crate rand;
 
 #[cfg(test)]
 #[macro_use]
-mod nearly_eq;
+extern crate nearly_eq;
 
 mod precompute_utils;
 mod prime_factorization;
@@ -33,3 +33,30 @@ pub use rfft1d::RFft1D;
 pub use dct1d::Dct1D;
 pub use mdct1d::Mdct1D;
 pub use cfft2d::CFft2D;
+
+#[cfg(test)]
+trait FloatEps {
+    fn eps() -> Self;
+}
+
+#[cfg(test)]
+mod tests {
+    impl ::FloatEps for f32 {
+        fn eps() -> Self {
+            1e-2
+        }
+    }
+
+    impl ::FloatEps for f64 {
+        fn eps() -> Self {
+            1e-10
+        }
+    }
+}
+
+#[cfg(test)]
+#[inline(always)]
+fn assert_nearly_eq<A: FloatEps + std::fmt::Debug, B: std::fmt::Debug + ?Sized,  C: nearly_eq::NearlyEq<B, A> + std::fmt::Debug + ?Sized>(expected: &C, actual: &B) {
+    assert_nearly_eq!(expected, actual, A::eps());
+}
+

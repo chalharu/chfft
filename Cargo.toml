@@ -15,8 +15,13 @@ bench = false
 test = true
 
 [dependencies]
-num-traits = "0.1.40"
-num-complex = "0.1.40"
+num-traits = ">=0.0.0"
+num-complex = ">=0.0.0"
 
 [dev-dependencies]
-rand = "0.3.16"
+rand = ">=0.0.0"
+
+[dev-dependencies.nearly_eq]
+version=">=0.1.2"
+features=["num-complex"]
+

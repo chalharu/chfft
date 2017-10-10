@@ -369,6 +369,8 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_nearly_eq;
+    use FloatEps;
     use nearly_eq::NearlyEq;
     use rand::{Rand, Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
@@ -398,18 +400,18 @@ mod tests {
             .collect::<Vec<_>>()
     }
 
-    fn test_with_source<T: Float + FloatConst + NumAssign + Debug + NearlyEq>(
+    fn test_with_source<T: Float + FloatConst + NumAssign + Debug + NearlyEq + FloatEps>(
         fft: &mut CFft2D<T>,
         source: &[Vec<Complex<T>>],
     ) {
         let expected = convert(source, one());
         let actual = fft.forward(source);
-        assert_nearly_eq!(&expected, &actual);
+        assert_nearly_eq(&expected, &actual);
         let actual_source = fft.backward(&actual);
-        assert_nearly_eq!(&source, &actual_source);
+        assert_nearly_eq(&source, &actual_source);
     }
 
-    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq>(
+    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq + FloatEps>(
         fft: &mut CFft2D<T>,
         len_m: usize,
         len_n: usize,
