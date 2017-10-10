@@ -74,7 +74,7 @@ pub fn calc_bitreverse(len: usize, factors: &[Factor]) -> Vec<usize> {
     let mut ids = Vec::<usize>::with_capacity(len);
     let mut llen = 1_usize;
     ids.push(0);
-    for &f in factors {
+    for ref f in factors {
         for _ in 0..f.count {
             for i in 0..llen {
                 ids[i] *= f.value;

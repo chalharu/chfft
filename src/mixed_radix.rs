@@ -148,9 +148,7 @@ fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign>(
     len: usize,
     im_one: &Complex<T>,
 ) {
-    let t3scaler = im_one.scale(
-        (cast::<_, T>(-2.0).unwrap() * T::PI() / cast(3.0).unwrap()).sin(),
-    );
+    let t3scaler = im_one.scale((cast::<_, T>(-2.0).unwrap() * T::PI() / cast(3.0).unwrap()).sin());
     for _ in 0..count {
         let po2m = *po2;
         *po2 *= 3;
@@ -254,18 +252,17 @@ fn mixed_kernel_radix5<T: Float + FloatConst>(
                 let t3 = z1 - z4;
                 let t4 = z2 - z3;
                 let t5 = t1 + t2;
-                let t6 = (t1 - t2).scale(
-                    cast::<_, T>(0.25).unwrap() * (cast::<_, T>(5.0).unwrap()).sqrt(),
-                );
+                let t6 = (t1 - t2)
+                    .scale(cast::<_, T>(0.25).unwrap() * (cast::<_, T>(5.0).unwrap()).sqrt());
                 let t7 = z0 - t5.scale(cast(0.25).unwrap());
                 let t8 = t6 + t7;
                 let t9 = t7 - t6;
-                let t10 = (t3.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin()) +
-                    t4.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin())) *
-                    im_one;
-                let t11 = (t3.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin()) -
-                    t4.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin())) *
-                    im_one;
+                let t10 = (t3.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin())
+                    + t4.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin()))
+                    * im_one;
+                let t11 = (t3.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin())
+                    - t4.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin()))
+                    * im_one;
 
                 ret[j] = z0 + t5;
                 ret[pos2] = t8 + t10;

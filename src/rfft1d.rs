@@ -316,6 +316,8 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_nearly_eq;
+    use FloatEps;
     use nearly_eq::NearlyEq;
     use rand::{Rand, Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
@@ -336,38 +338,38 @@ mod tests {
             .collect::<Vec<_>>()
     }
 
-    fn test_with_source<T: Float + FloatConst + NumAssign + Debug + NearlyEq>(
+    fn test_with_source<T: Float + FloatConst + NumAssign + Debug + NearlyEq + FloatEps>(
         fft: &mut RFft1D<T>,
         source: &[T],
     ) {
         let expected = convert(source, one());
         let actual = fft.forward(source);
-        assert_nearly_eq!(&expected, &actual);
+        assert_nearly_eq(&expected, &actual);
         let actual_source = fft.backward(&actual);
-        assert_nearly_eq!(&source, &actual_source);
+        assert_nearly_eq(&source, &actual_source);
 
         let actual = fft.forward0(source);
-        assert_nearly_eq!(&expected, &actual);
+        assert_nearly_eq(&expected, &actual);
         let actual_source = fft.backwardn(&actual);
-        assert_nearly_eq!(&source, &actual_source);
+        assert_nearly_eq(&source, &actual_source);
 
         let expected = convert(
             source,
             T::one() / cast::<_, T>(source.len()).unwrap().sqrt(),
         );
         let actual = fft.forwardu(source);
-        assert_nearly_eq!(&expected, &actual);
+        assert_nearly_eq(&expected, &actual);
         let actual_source = fft.backwardu(&actual);
-        assert_nearly_eq!(&source, &actual_source);
+        assert_nearly_eq(&source, &actual_source);
 
         let expected = convert(source, T::one() / cast(source.len()).unwrap());
         let actual = fft.forwardn(source);
-        assert_nearly_eq!(&expected, &actual);
+        assert_nearly_eq(&expected, &actual);
         let actual_source = fft.backward0(&actual);
-        assert_nearly_eq!(&source, &actual_source);
+        assert_nearly_eq(&source, &actual_source);
     }
 
-    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq>(
+    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq + FloatEps>(
         dct: &mut RFft1D<T>,
         len: usize,
     ) {
