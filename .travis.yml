@@ -43,7 +43,7 @@ before_script:
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     pippackage=("ghp-import" "pytoml")
     comm -13 <(pip freeze | cut -d= -f1 | sort) <(for i in ${pippackage[*]};do echo $i;done | sort) | grep -v '^#' | xargs pip install --user
-    export CARGO_PACKAGE_NAME=$(python get_cargo_package_name.py)
+    export CARGO_PACKAGE_NAME=$(echo 'import pytoml as toml; print(toml.load(open("Cargo.toml", "rb"))["package"]["name"])' | python2)
     echo CARGO_PACKAGE_NAME=$CARGO_PACKAGE_NAME
   fi
 
