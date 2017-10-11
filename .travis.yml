@@ -1,0 +1,92 @@
+language: rust
+
+rust:
+- stable
+- beta
+- nightly
+
+sudo: false
+
+os:
+- linux
+
+matrix:
+  allow_failures:
+  - rust: nightly
+
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+    - libelf-dev
+    - libdw-dev
+    - binutils-dev
+    - libiberty-dev
+
+before_script:
+- |
+  if [ "${TRAVIS_OS_NAME}" = 'osx' ]; then
+    export PATH=$HOME/Library/Python/2.7/bin:$PATH
+  fi
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    cargo install cargo-kcov
+    if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
+      mkdir kcov
+      cd kcov
+      cargo kcov --print-install-kcov-sh | sh
+      cd ${TRAVIS_BUILD_DIR}
+      rm -rf kcov
+    fi
+  fi
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    pippackage=("ghp-import" "pytoml")
+    comm -13 <(pip freeze | cut -d= -f1 | sort) <(for i in ${pippackage[*]};do echo $i;done | sort) | grep -v '^#' | xargs pip install --user
+    export CARGO_PACKAGE_NAME=$(echo 'import pytoml as toml; print(toml.load(open("Cargo.toml", "rb"))["package"]["name"])' | python2)
+    echo CARGO_PACKAGE_NAME=$CARGO_PACKAGE_NAME
+  fi
+
+script:
+- cargo build
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    cargo kcov --coveralls
+  else
+    cargo test
+  fi
+- cargo test --release
+- |
+  if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
+    cargo bench --verbose
+  fi
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    cargo doc --no-deps &&
+    echo "<meta http-equiv=refresh content=0;url=`echo $CARGO_PACKAGE_NAME`/index.html>" > target/doc/index.html &&
+    ghp-import -n target/doc
+  fi
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    cargo login ${CRATES_TOKEN} &&
+    cargo package
+  fi
+
+after_success:
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
+     [ "${TRAVIS_RUST_VERSION}" = "stable" ] &&
+     [ "${TRAVIS_BRANCH}" = "master" ] &&
+     [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+    git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages &&
+    cargo publish
+  fi
+
+env:
+  global:
+  - secure: KLV7rs+XXTb5xZ+LFzXqSza5alakyVZq5y6g5S2/iq5SK69YKHg7YREDiKHDSXDZIpuCJfdfQGB4rNZjsmAwqyA4TO62fEMdZWMelBQAZoLSZq8+s4SU6gHKXlNbcs5NNXmyz/h+Ga5SR2EEvw0vpN78kC7KcA4zLrG/knKVkbr5eBdg8Byruo+hzkFd2Ej6qg0FX+nGOfINzXZQBRuoaq2ZFgp/4o3MA1kHvKyB+e6AFkVRQnwVxrnwMDU90z3R6beSduJ518y6tyVyCPnzh1LF5uYwL7sISZvw3sKI10s6b/KF/64AoGXJEq+kfaLV6RpBnNSeDFKPl3b+Bnlagqb9M9CNU58UufTZJ5bnteDqP+41jzg9TUNmW6eajHgyW110BHFQrJg3TpV1ABassDgn4bHSkklS9Io6oLxhS+PgV0MzBszhMeC+gTFqsAogPsVunJu1F2Yb0XxzS9TqcMUj8zkUewusrKcvrh3X03b/5VPEsKahnY13fVwQunOoWyDgZxUxLSuXr66rQOqowz4I/8eu4A90/GNJupKZ7EOReguIeAQM8wRehxr9NVva98M7BUmQbnCS5auehe5gjMvOLVIRw+OAR3cC/zsvPw0ugtS7RSDkZyKF3czpPIn037OI4umdAe/vqkYKvSvtSSlNmaK4aehMlAnYppFADxo=
+
+cache:
+  cargo: true
+  apt: true
+  pip: true
