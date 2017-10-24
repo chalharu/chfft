@@ -46,23 +46,32 @@ before_script:
     export CARGO_PACKAGE_NAME=$(echo 'import pytoml as toml; print(toml.load(open("Cargo.toml", "rb"))["package"]["name"])' | python2)
     echo CARGO_PACKAGE_NAME=$CARGO_PACKAGE_NAME
   fi
-
-script:
-- cargo build
-- |
-  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    cargo kcov --coveralls
-  else
-    cargo test
-  fi
-- cargo test --release
 - |
   if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
-    cargo bench --verbose
+    export FEATURES=""
+  else
+    export FEATURES=""
+  fi
+
+script:
+- cargo build --features="$FEATURES"
+- cargo test --no-run --features="$FEATURES"
+- cargo build --release --features="$FEATURES"
+- cargo test --release --no-run --features="$FEATURES"
+- |
+  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    cargo kcov --coveralls --features="$FEATURES"
+  else
+    cargo test --features="$FEATURES"
+  fi
+- cargo test --release --features="$FEATURES"
+- |
+  if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
+    cargo bench --verbose --features="$FEATURES"
   fi
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    cargo doc --no-deps &&
+    cargo doc --no-deps --features="docs" &&
     echo "<meta http-equiv=refresh content=0;url=`echo $CARGO_PACKAGE_NAME`/index.html>" > target/doc/index.html &&
     ghp-import -n target/doc
   fi
@@ -90,3 +99,8 @@ cache:
   cargo: true
   apt: true
   pip: true
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
