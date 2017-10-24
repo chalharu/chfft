@@ -295,9 +295,9 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_nearly_eq;
+    use assert_appro_eq;
     use FloatEps;
-    use nearly_eq::NearlyEq;
+    use appro_eq::AbsError;
     use rand::{Rand, Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
 
@@ -339,7 +339,7 @@ mod tests {
     }
 
     fn test_with_source<
-        T: Float + FloatConst + NumAssign + Debug + NearlyEq + FloatEps,
+        T: Float + FloatConst + NumAssign + Debug + AbsError + FloatEps,
         F: Fn(usize, usize) -> T,
         G: Fn(usize, usize) -> T,
     >(
@@ -349,17 +349,17 @@ mod tests {
     ) {
         let expected = convert(window_func, source);
         let actual = mdct.forward(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let expected = convert_back(window_func, &actual);
         let actual_source = mdct.backward(&actual);
-        assert_nearly_eq(&expected, &actual_source);
+        assert_appro_eq(&expected, &actual_source);
         let actual = mdct.forwardu(source);
         let actual_source = mdct.backwardu(&actual);
-        assert_nearly_eq(&expected, &actual_source);
+        assert_appro_eq(&expected, &actual_source);
     }
 
     fn test_with_len<
-        T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq + FloatEps,
+        T: Float + Rand + FloatConst + NumAssign + Debug + AbsError + FloatEps,
         F: Fn(usize, usize) -> T,
         G: Fn(usize, usize) -> T,
     >(
