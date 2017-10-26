@@ -6,7 +6,7 @@ repository = "https://github.com/chalharu/chfft"
 keywords = ["fft", "numerics", "dsp", "mathematics"]
 license = "MPL-2.0"
 readme = "README.md"
-description = "Chalharu's Fastest Fourier Transform library."
+description = "Fastest Fourier Transform library implemented with pure Rust."
 documentation = "https://docs.rs/chfft/"
 
 [lib]
