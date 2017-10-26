@@ -399,9 +399,9 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_nearly_eq;
+    use assert_appro_eq;
     use FloatEps;
-    use nearly_eq::NearlyEq;
+    use appro_eq::AbsError;
     use rand::{Rand, Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
 
@@ -419,7 +419,7 @@ mod tests {
             .collect::<Vec<_>>()
     }
 
-    fn test_with_source<T: Float + FloatConst + NumAssign + Debug + NearlyEq + FloatEps>(
+    fn test_with_source<T: Float + FloatConst + NumAssign + Debug + AbsError + FloatEps>(
         dct2: &mut Dct1D<T>,
         dct3: &mut Dct1D<T>,
         source: &[T],
@@ -429,25 +429,25 @@ mod tests {
             (cast::<_, T>(2).unwrap() / cast(source.len()).unwrap()).sqrt(),
         );
         let actual = dct2.forwardu(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = dct3.forwardu(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
         let expected = convert(
             source,
             cast::<_, T>(2).unwrap() / cast(source.len()).unwrap(),
         );
         let actual = dct2.forwardn(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = dct3.forward0(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
         let expected = convert(source, one());
         let actual = dct2.forward0(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = dct3.forwardn(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
     }
 
-    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + NearlyEq + FloatEps>(
+    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + AbsError + FloatEps>(
         dct2: &mut Dct1D<T>,
         dct3: &mut Dct1D<T>,
         len: usize,
