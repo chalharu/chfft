@@ -5,7 +5,7 @@
 //! # Licensing
 //! This Source Code is subject to the terms of the Mozilla Public License
 //! version 2.0 (the "License"). You can obtain a copy of the License at
-//! http://mozilla.org/MPL/2.0/.
+//! http://mozilla.org/MPL/2.0/ .
 
 extern crate num_complex;
 extern crate num_traits;
@@ -15,7 +15,7 @@ extern crate rand;
 
 #[cfg(test)]
 #[macro_use]
-extern crate nearly_eq;
+extern crate appro_eq;
 
 mod precompute_utils;
 mod prime_factorization;
@@ -56,13 +56,13 @@ mod tests {
 
 #[cfg(test)]
 #[inline(always)]
-fn assert_nearly_eq<
-    A: FloatEps + std::fmt::Debug,
+fn assert_appro_eq<
+    A: FloatEps + std::fmt::Debug + PartialOrd,
     B: std::fmt::Debug + ?Sized,
-    C: nearly_eq::NearlyEq<B, A> + std::fmt::Debug + ?Sized,
+    C: appro_eq::AbsError<B, A> + std::fmt::Debug + ?Sized,
 >(
     expected: &C,
     actual: &B,
 ) {
-    assert_nearly_eq!(expected, actual, A::eps());
+    assert_appro_eq!(&expected, &actual, A::eps());
 }

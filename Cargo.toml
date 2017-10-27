@@ -1,12 +1,12 @@
 [package]
 name = "chfft"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Mitsuharu Seki <mitsu1986@gmail.com>"]
 repository = "https://github.com/chalharu/chfft"
 keywords = ["fft", "numerics", "dsp", "mathematics"]
 license = "MPL-2.0"
 readme = "README.md"
-description = "Chalharu's Fastest Fourier Transform library."
+description = "Fastest Fourier Transform library implemented with pure Rust."
 documentation = "https://docs.rs/chfft/"
 
 [lib]
@@ -21,7 +21,9 @@ num-complex = ">=0.0.0"
 [dev-dependencies]
 rand = ">=0.0.0"
 
-[dev-dependencies.nearly_eq]
-version=">=0.1.2"
-features=["num-complex"]
+[dev-dependencies.appro-eq]
+version=">=0.0.0"
+features=["complex"]
 
+[features]
+docs = []

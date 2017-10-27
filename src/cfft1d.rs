@@ -3,7 +3,7 @@
 //! # Licensing
 //! This Source Code is subject to the terms of the Mozilla Public License
 //! version 2.0 (the "License"). You can obtain a copy of the License at
-//! http://mozilla.org/MPL/2.0/.
+//! http://mozilla.org/MPL/2.0/ .
 
 use num_complex::Complex;
 use num_traits::{cast, NumAssign};
@@ -510,9 +510,9 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_nearly_eq;
+    use assert_appro_eq;
     use FloatEps;
-    use nearly_eq::NearlyEq;
+    use appro_eq::AbsError;
     use rand::{Rand, Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
 
@@ -532,47 +532,47 @@ mod tests {
             .collect::<Vec<_>>()
     }
 
-    fn test_with_source<T: Float + FloatConst + NumAssign + NearlyEq + Debug + FloatEps>(
+    fn test_with_source<T: Float + FloatConst + NumAssign + AbsError + Debug + FloatEps>(
         fft: &mut CFft1D<T>,
         source: &[Complex<T>],
     ) {
         let expected = convert(source, one());
         let actual = fft.forward(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = fft.backward(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
 
         let actual = fft.forward0(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = fft.backwardn(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
 
         let expected = convert(
             source,
             T::one() / cast::<_, T>(source.len()).unwrap().sqrt(),
         );
         let actual = fft.forwardu(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = fft.backwardu(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
 
         let expected = convert(source, T::one() / cast(source.len()).unwrap());
         let actual = fft.forwardn(source);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
         let actual_source = fft.backward0(&actual);
-        assert_nearly_eq(&source, &actual_source);
+        assert_appro_eq(source, &actual_source);
 
         let expected = fft.forward0(source);
         let mut actual = source.to_vec();
         fft.forward0i(&mut actual);
-        assert_nearly_eq(&expected, &actual);
+        assert_appro_eq(&expected, &actual);
 
         let mut actual = fft.forwardn(source);
         fft.backward0i(&mut actual);
-        assert_nearly_eq(&source, &actual);
+        assert_appro_eq(source, &actual);
     }
 
-    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + NearlyEq + Debug + FloatEps>(
+    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + AbsError + Debug + FloatEps>(
         fft: &mut CFft1D<T>,
         len: usize,
     ) {
@@ -613,6 +613,14 @@ mod tests {
     fn f32_with_len() {
         for i in 1..100 {
             test_with_len(&mut CFft1D::<f32>::with_len(i), i);
+        }
+    }
+
+    #[test]
+    fn f64_primes() {
+        let mut dft = CFft1D::<f64>::new();
+        for &i in &[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97] {
+            test_with_len(&mut dft, i);
         }
     }
 }
