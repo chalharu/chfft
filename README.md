@@ -23,7 +23,6 @@ See the [crate documentation](https://docs.rs/chfft/) for more details.
 
 - **`Mdct1D`** - Perform a Modified discrete cosine transform.
 
-
 ### Examples
 
 ```rust

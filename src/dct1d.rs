@@ -199,7 +199,7 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct2Worker1D<T> {
                 .iter()
                 .take(len >> 1)
                 .map(|w| {
-                    (Complex::new(one(), zero()) + Complex::i() * w).scale(cast(0.5).unwrap())
+                    (Complex::<T>::new(one(), zero()) + Complex::<T>::i() * w).scale(cast(0.5).unwrap())
                 })
                 .collect();
             self.work = vec![zero(); len >> 1];
@@ -320,7 +320,7 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
                 .rev()
                 .take(len >> 1)
                 .map(|w| {
-                    (Complex::new(one(), zero()) - Complex::i() * w).scale(cast(0.5).unwrap())
+                    (Complex::<T>::new(one(), zero()) - Complex::<T>::i() * w).scale(cast(0.5).unwrap())
                 })
                 .collect();
             self.work = vec![zero(); len >> 1];
