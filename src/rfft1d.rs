@@ -51,7 +51,7 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
                 .iter()
                 .take(len >> 1)
                 .map(|w| {
-                    (Complex::new(one(), zero()) + Complex::i() * w).scale(cast(0.5).unwrap())
+                    (Complex::<T>::new(one(), zero()) + Complex::<T>::i() * w).scale(cast(0.5).unwrap())
                 })
                 .collect(),
             omega
@@ -59,7 +59,7 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
                 .rev()
                 .take(len >> 1)
                 .map(|w| {
-                    (Complex::new(one(), zero()) - Complex::i() * w).scale(cast(0.5).unwrap())
+                    (Complex::<T>::new(T::one(), zero()) - Complex::<T>::i() * w).scale(cast(0.5).unwrap())
                 })
                 .collect(),
         )
