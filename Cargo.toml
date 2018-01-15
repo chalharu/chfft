@@ -16,7 +16,7 @@ test = true
 
 [dependencies]
 num-traits = ">=0.0.0"
-num-complex = ">=0.0.0"
+num-complex = "<=0.1.40"
 
 [dev-dependencies]
 rand = ">=0.0.0"
