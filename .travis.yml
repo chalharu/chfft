@@ -5,7 +5,7 @@ rust:
 - beta
 - nightly
 
-sudo: false
+sudo: true
 
 os:
 - linux
@@ -22,22 +22,12 @@ addons:
     - libdw-dev
     - binutils-dev
     - libiberty-dev
+    - cmake
 
 before_script:
 - |
   if [ "${TRAVIS_OS_NAME}" = 'osx' ]; then
     export PATH=$HOME/Library/Python/2.7/bin:$PATH
-  fi
-- |
-  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    cargo install cargo-kcov
-    if [ ! -x $HOME/.cargo/bin/kcov ] || [ ! -f $HOME/.cargo/bin/kcov ]; then
-      mkdir kcov
-      cd kcov
-      cargo kcov --print-install-kcov-sh | sh
-      cd ${TRAVIS_BUILD_DIR}
-      rm -rf kcov
-    fi
   fi
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
@@ -52,6 +42,9 @@ before_script:
   else
     export FEATURES=""
   fi
+- cargo install cargo-update || echo "cargo-update already installed"
+- cargo install cargo-travis || echo "cargo-travis already installed"
+- cargo install-update -a || true # update outdated cached binaries
 
 script:
 - cargo build --features="$FEATURES"
@@ -60,7 +53,8 @@ script:
 - cargo test --release --no-run --features="$FEATURES"
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    cargo kcov --coveralls --features="$FEATURES" || cargo test --features="$FEATURES"
+    cargo coveralls --features="$FEATURES" ||
+      cargo test --features="$FEATURES"
   else
     cargo test --features="$FEATURES"
   fi
@@ -86,7 +80,8 @@ after_success:
   if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
      [ "${TRAVIS_RUST_VERSION}" = "stable" ] &&
      [ "${TRAVIS_BRANCH}" = "master" ] &&
-     [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+     [ "${TRAVIS_PULL_REQUEST}" = "false" ] &&
+     [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
     git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages &&
     cargo publish
   fi
