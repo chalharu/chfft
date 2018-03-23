@@ -1,6 +1,6 @@
 [package]
 name = "chfft"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Mitsuharu Seki <mitsu1986@gmail.com>"]
 repository = "https://github.com/chalharu/chfft"
 keywords = ["fft", "numerics", "dsp", "mathematics"]
