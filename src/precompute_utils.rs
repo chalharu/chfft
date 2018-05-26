@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use std::cmp;
 use num_complex::Complex;
 use num_traits::cast;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 use prime_factorization::Factor;
+use std::cmp;
 
 #[inline]
 pub fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Complex<T> {
@@ -66,7 +66,6 @@ pub fn calc_omega<T: Float + FloatConst>(len: usize) -> Vec<Complex<T>> {
     omega.push(one());
     omega
 }
-
 
 #[inline]
 pub fn calc_bitreverse(len: usize, factors: &[Factor]) -> Vec<usize> {
