@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+use CFft1D;
 use num_complex::Complex;
-use num_traits::{cast, NumAssign};
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
+use num_traits::{cast, NumAssign};
 use precompute_utils;
-use CFft1D;
 
 /// Perform a real-to-complex one-dimensional Fourier transform
 ///
@@ -51,7 +51,8 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
                 .iter()
                 .take(len >> 1)
                 .map(|w| {
-                    (Complex::<T>::new(one(), zero()) + Complex::<T>::i() * w).scale(cast(0.5).unwrap())
+                    (Complex::<T>::new(one(), zero()) + Complex::<T>::i() * w)
+                        .scale(cast(0.5).unwrap())
                 })
                 .collect(),
             omega
@@ -59,7 +60,8 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
                 .rev()
                 .take(len >> 1)
                 .map(|w| {
-                    (Complex::<T>::new(T::one(), zero()) - Complex::<T>::i() * w).scale(cast(0.5).unwrap())
+                    (Complex::<T>::new(T::one(), zero()) - Complex::<T>::i() * w)
+                        .scale(cast(0.5).unwrap())
                 })
                 .collect(),
         )
@@ -185,7 +187,6 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
         }
         ret
     }
-
 
     /// The 1 scaling factor forward transform
     ///
@@ -316,23 +317,23 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_appro_eq;
     use FloatEps;
     use appro_eq::AbsError;
-    use rand::{Rand, Rng, SeedableRng, XorShiftRng};
+    use assert_appro_eq;
+    use rand::distributions::{Distribution, Standard};
+    use rand::{Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[T], scalar: T) -> Vec<Complex<T>> {
         (0..((source.len() >> 1) + 1))
             .map(|i| {
                 (1..source.len()).fold(Complex::new(source[0], zero()), |x, j| {
-                    x
-                        + Complex::new(source[j], zero())
-                            * Complex::<T>::from_polar(
-                                &one(),
-                                &(-cast::<_, T>(2 * i * j).unwrap() * T::PI()
-                                    / cast(source.len()).unwrap()),
-                            )
+                    x + Complex::new(source[j], zero())
+                        * Complex::<T>::from_polar(
+                            &one(),
+                            &(-cast::<_, T>(2 * i * j).unwrap() * T::PI()
+                                / cast(source.len()).unwrap()),
+                        )
                 }) * scalar
             })
             .collect::<Vec<_>>()
@@ -369,11 +370,16 @@ mod tests {
         assert_appro_eq(source, &actual_source);
     }
 
-    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + Debug + AbsError + FloatEps>(
+    fn test_with_len<T: Float + FloatConst + NumAssign + Debug + AbsError + FloatEps>(
         dct: &mut RFft1D<T>,
         len: usize,
-    ) {
-        let mut rng = XorShiftRng::from_seed([189522394, 1694417663, 1363148323, 4087496301]);
+    ) where
+        Standard: Distribution<T>,
+    {
+        let mut rng = XorShiftRng::from_seed([
+            0xDA, 0xE1, 0x4B, 0x0B, 0xFF, 0xC2, 0xFE, 0x64, 0x23, 0xFE, 0x3F, 0x51, 0x6D, 0x3E,
+            0xA2, 0xF3,
+        ]);
 
         // 10パターンのテスト
         for _ in 0..10 {
@@ -388,7 +394,6 @@ mod tests {
             test_with_len(&mut RFft1D::<f64>::new(i << 1), i << 1);
         }
     }
-
 
     #[test]
     fn f32_new() {

@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+use CFft1D;
 use num_complex::Complex;
-use num_traits::{cast, one, NumAssign};
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::zero;
+use num_traits::{cast, one, NumAssign};
 use precompute_utils;
-use CFft1D;
 
 /// Perform a Modified discrete cosine transform
 ///
@@ -213,20 +213,20 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
         for i in 0..leno {
             let n = i << 1;
             self.work[i] = Complex::new(
-                source[len3q - 1 - n] * self.window_scaler[len3q - 1 - n] +
-                    source[len3q + n] * self.window_scaler[len3q + n],
-                source[lenq + n] * self.window_scaler[lenq + n] -
-                    source[lenq - 1 - n] * self.window_scaler[lenq - 1 - n],
+                source[len3q - 1 - n] * self.window_scaler[len3q - 1 - n]
+                    + source[len3q + n] * self.window_scaler[len3q + n],
+                source[lenq + n] * self.window_scaler[lenq + n]
+                    - source[lenq - 1 - n] * self.window_scaler[lenq - 1 - n],
             ) * self.twiddle[i];
         }
 
         for i in leno..lenq {
             let n = i << 1;
             self.work[i] = Complex::new(
-                source[len3q - 1 - n] * self.window_scaler[len3q - 1 - n] -
-                    source[n - lenq] * self.window_scaler[n - lenq],
-                source[lenq + n] * self.window_scaler[lenq + n] +
-                    source[len5q - 1 - n] * self.window_scaler[len5q - 1 - n],
+                source[len3q - 1 - n] * self.window_scaler[len3q - 1 - n]
+                    - source[n - lenq] * self.window_scaler[n - lenq],
+                source[lenq + n] * self.window_scaler[lenq + n]
+                    + source[len5q - 1 - n] * self.window_scaler[len5q - 1 - n],
             ) * self.twiddle[i];
         }
 
@@ -261,8 +261,8 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
 
         for i in 0..lenq {
             let n = i << 1;
-            self.work[i] = Complex::new(source[n], source[lenh - 1 - n]) *
-                self.twiddle[i].scale(cast(-2.0).unwrap());
+            self.work[i] = Complex::new(source[n], source[lenh - 1 - n])
+                * self.twiddle[i].scale(cast(-2.0).unwrap());
         }
         self.fft.forward0i(&mut self.work);
 
@@ -295,10 +295,11 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_appro_eq;
     use FloatEps;
     use appro_eq::AbsError;
-    use rand::{Rand, Rng, SeedableRng, XorShiftRng};
+    use assert_appro_eq;
+    use rand::distributions::{Distribution, Standard};
+    use rand::{Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst, F>(window_func: F, source: &[T]) -> Vec<T>
@@ -309,11 +310,10 @@ mod tests {
         return (0..(n >> 1))
             .map(|m| {
                 (0..source.len()).fold(zero(), |x: T, k| {
-                    x
-                        + window_func(n, k) * source[k]
-                            * (T::PI() / cast(n << 1).unwrap()
-                                * cast::<_, T>((1 + (n >> 1) + (k << 1)) * (1 + (m << 1))).unwrap())
-                                .cos()
+                    x + window_func(n, k) * source[k]
+                        * (T::PI() / cast(n << 1).unwrap()
+                            * cast::<_, T>((1 + (n >> 1) + (k << 1)) * (1 + (m << 1))).unwrap())
+                            .cos()
                 })
             })
             .collect::<Vec<_>>();
@@ -328,11 +328,10 @@ mod tests {
             .map(|k| {
                 cast::<_, T>(4.0).unwrap() * window_func(n, k) / cast(n).unwrap()
                     * (0..(n >> 1)).fold(zero(), |x: T, m| {
-                        x
-                            + source[m]
-                                * (T::PI() / cast(n << 1).unwrap()
-                                    * cast::<_, T>((1 + (n >> 1) + (k << 1)) * (1 + (m << 1))).unwrap())
-                                    .cos()
+                        x + source[m]
+                            * (T::PI() / cast(n << 1).unwrap()
+                                * cast::<_, T>((1 + (n >> 1) + (k << 1)) * (1 + (m << 1))).unwrap())
+                                .cos()
                     })
             })
             .collect::<Vec<_>>();
@@ -359,15 +358,20 @@ mod tests {
     }
 
     fn test_with_len<
-        T: Float + Rand + FloatConst + NumAssign + Debug + AbsError + FloatEps,
+        T: Float + FloatConst + NumAssign + Debug + AbsError + FloatEps,
         F: Fn(usize, usize) -> T,
         G: Fn(usize, usize) -> T,
     >(
         mdct: &mut Mdct1D<T, F>,
         len: usize,
         window_func: &G,
-    ) {
-        let mut rng = XorShiftRng::from_seed([189522394, 1694417663, 1363148323, 4087496301]);
+    ) where
+        Standard: Distribution<T>,
+    {
+        let mut rng = XorShiftRng::from_seed([
+            0xDA, 0xE1, 0x4B, 0x0B, 0xFF, 0xC2, 0xFE, 0x64, 0x23, 0xFE, 0x3F, 0x51, 0x6D, 0x3E,
+            0xA2, 0xF3,
+        ]);
 
         // 10パターンのテスト
         for _ in 0..10 {
@@ -379,42 +383,66 @@ mod tests {
     #[test]
     fn f32_with_sine() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f32, _>::with_sine(i << 2), i << 2, &sine_window);
+            test_with_len(
+                &mut Mdct1D::<f32, _>::with_sine(i << 2),
+                i << 2,
+                &sine_window,
+            );
         }
     }
 
     #[test]
     fn f64_with_sine() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f64, _>::with_sine(i << 2), i << 2, &sine_window);
+            test_with_len(
+                &mut Mdct1D::<f64, _>::with_sine(i << 2),
+                i << 2,
+                &sine_window,
+            );
         }
     }
 
     #[test]
     fn f32_with_vorbis() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f32, _>::with_vorbis(i << 2), i << 2, &vorbis_window);
+            test_with_len(
+                &mut Mdct1D::<f32, _>::with_vorbis(i << 2),
+                i << 2,
+                &vorbis_window,
+            );
         }
     }
 
     #[test]
     fn f64_with_vorbis() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f64, _>::with_vorbis(i << 2), i << 2, &vorbis_window);
+            test_with_len(
+                &mut Mdct1D::<f64, _>::with_vorbis(i << 2),
+                i << 2,
+                &vorbis_window,
+            );
         }
     }
 
     #[test]
     fn f32_with_new() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f32, _>::new(sine_window, i << 2), i << 2, &sine_window);
+            test_with_len(
+                &mut Mdct1D::<f32, _>::new(sine_window, i << 2),
+                i << 2,
+                &sine_window,
+            );
         }
     }
 
     #[test]
     fn f64_with_new() {
         for i in 1..100 {
-            test_with_len(&mut Mdct1D::<f64, _>::new(sine_window, i << 2), i << 2, &sine_window);
+            test_with_len(
+                &mut Mdct1D::<f64, _>::new(sine_window, i << 2),
+                i << 2,
+                &sine_window,
+            );
         }
     }
 
