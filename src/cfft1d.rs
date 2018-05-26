@@ -513,7 +513,8 @@ mod tests {
     use assert_appro_eq;
     use FloatEps;
     use appro_eq::AbsError;
-    use rand::{Rand, Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::distributions::{Distribution, Standard};
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[Complex<T>], scalar: T) -> Vec<Complex<T>> {
@@ -572,11 +573,17 @@ mod tests {
         assert_appro_eq(source, &actual);
     }
 
-    fn test_with_len<T: Float + Rand + FloatConst + NumAssign + AbsError + Debug + FloatEps>(
+    fn test_with_len<T: Float + FloatConst + NumAssign + AbsError + Debug + FloatEps>(
         fft: &mut CFft1D<T>,
         len: usize,
-    ) {
-        let mut rng = XorShiftRng::from_seed([189522394, 1694417663, 1363148323, 4087496301]);
+    )
+    where
+        Standard: Distribution<T>
+    {
+        let mut rng = XorShiftRng::from_seed([
+            0xDA, 0xE1, 0x4B, 0x0B, 0xFF, 0xC2, 0xFE, 0x64, 0x23, 0xFE, 0x3F,
+            0x51, 0x6D, 0x3E, 0xA2, 0xF3,
+        ]);
 
         // 10パターンのテスト
         for _ in 0..10 {

@@ -298,7 +298,8 @@ mod tests {
     use assert_appro_eq;
     use FloatEps;
     use appro_eq::AbsError;
-    use rand::{Rand, Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::distributions::{Distribution, Standard};
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst, F>(window_func: F, source: &[T]) -> Vec<T>
@@ -359,15 +360,21 @@ mod tests {
     }
 
     fn test_with_len<
-        T: Float + Rand + FloatConst + NumAssign + Debug + AbsError + FloatEps,
+        T: Float + FloatConst + NumAssign + Debug + AbsError + FloatEps,
         F: Fn(usize, usize) -> T,
         G: Fn(usize, usize) -> T,
     >(
         mdct: &mut Mdct1D<T, F>,
         len: usize,
         window_func: &G,
-    ) {
-        let mut rng = XorShiftRng::from_seed([189522394, 1694417663, 1363148323, 4087496301]);
+    )
+    where
+        Standard: Distribution<T>
+    {
+        let mut rng = XorShiftRng::from_seed([
+            0xDA, 0xE1, 0x4B, 0x0B, 0xFF, 0xC2, 0xFE, 0x64, 0x23, 0xFE, 0x3F,
+            0x51, 0x6D, 0x3E, 0xA2, 0xF3,
+        ]);
 
         // 10パターンのテスト
         for _ in 0..10 {
