@@ -5,11 +5,11 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+use mixed_radix;
 use num_complex::Complex;
 use num_traits::NumAssign;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
-use mixed_radix;
 
 pub fn convert_rad2_inplace<T: Float + NumAssign>(
     source: &mut [Complex<T>],
@@ -88,17 +88,21 @@ pub fn convert_chirpz<T: Float + NumAssign>(
 
     // Multiply phase factor
     (0..srclen)
-        .map(move |i| if i == 0 {
-            0
-        } else if is_back {
-            srclen - i
-        } else {
-            i
+        .map(move |i| {
+            if i == 0 {
+                0
+            } else if is_back {
+                srclen - i
+            } else {
+                i
+            }
         })
-        .map(move |i| if scaler != one() {
-            a[i] * rot_conj[i].scale(scaler)
-        } else {
-            a[i] * rot_conj[i]
+        .map(move |i| {
+            if scaler != one() {
+                a[i] * rot_conj[i].scale(scaler)
+            } else {
+                a[i] * rot_conj[i]
+            }
         })
         .collect::<Vec<_>>()
 }

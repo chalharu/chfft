@@ -17,22 +17,22 @@ extern crate rand;
 #[macro_use]
 extern crate appro_eq;
 
-mod precompute_utils;
-mod prime_factorization;
 mod chirpz;
 mod mixed_radix;
+mod precompute_utils;
+mod prime_factorization;
 
 mod cfft1d;
-mod rfft1d;
+mod cfft2d;
 mod dct1d;
 mod mdct1d;
-mod cfft2d;
+mod rfft1d;
 
 pub use cfft1d::CFft1D;
-pub use rfft1d::RFft1D;
+pub use cfft2d::CFft2D;
 pub use dct1d::Dct1D;
 pub use mdct1d::Mdct1D;
-pub use cfft2d::CFft2D;
+pub use rfft1d::RFft1D;
 
 #[cfg(test)]
 trait FloatEps {

@@ -5,15 +5,15 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use num_complex::Complex;
-use num_traits::{cast, NumAssign};
-use num_traits::float::{Float, FloatConst};
-use num_traits::identities::{one, zero};
-use prime_factorization;
-use prime_factorization::Factor;
-use precompute_utils;
 use chirpz;
 use mixed_radix;
+use num_complex::Complex;
+use num_traits::float::{Float, FloatConst};
+use num_traits::identities::{one, zero};
+use num_traits::{cast, NumAssign};
+use precompute_utils;
+use prime_factorization;
+use prime_factorization::Factor;
 
 enum WorkData<T> {
     MixedRadix {
@@ -510,24 +510,23 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_appro_eq;
     use FloatEps;
     use appro_eq::AbsError;
-    use rand::{Rng, SeedableRng, XorShiftRng};
+    use assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
+    use rand::{Rng, SeedableRng, XorShiftRng};
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[Complex<T>], scalar: T) -> Vec<Complex<T>> {
         (0..source.len())
             .map(|i| {
                 (1..source.len()).fold(source[0], |x, j| {
-                    x
-                        + source[j]
-                            * Complex::<T>::from_polar(
-                                &one(),
-                                &(-cast::<_, T>(2 * i * j).unwrap() * T::PI()
-                                    / cast(source.len()).unwrap()),
-                            )
+                    x + source[j]
+                        * Complex::<T>::from_polar(
+                            &one(),
+                            &(-cast::<_, T>(2 * i * j).unwrap() * T::PI()
+                                / cast(source.len()).unwrap()),
+                        )
                 }) * scalar
             })
             .collect::<Vec<_>>()
@@ -576,13 +575,12 @@ mod tests {
     fn test_with_len<T: Float + FloatConst + NumAssign + AbsError + Debug + FloatEps>(
         fft: &mut CFft1D<T>,
         len: usize,
-    )
-    where
-        Standard: Distribution<T>
+    ) where
+        Standard: Distribution<T>,
     {
         let mut rng = XorShiftRng::from_seed([
-            0xDA, 0xE1, 0x4B, 0x0B, 0xFF, 0xC2, 0xFE, 0x64, 0x23, 0xFE, 0x3F,
-            0x51, 0x6D, 0x3E, 0xA2, 0xF3,
+            0xDA, 0xE1, 0x4B, 0x0B, 0xFF, 0xC2, 0xFE, 0x64, 0x23, 0xFE, 0x3F, 0x51, 0x6D, 0x3E,
+            0xA2, 0xF3,
         ]);
 
         // 10パターンのテスト
@@ -626,7 +624,10 @@ mod tests {
     #[test]
     fn f64_primes() {
         let mut dft = CFft1D::<f64>::new();
-        for &i in &[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97] {
+        for &i in &[
+            2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83,
+            89, 97,
+        ] {
             test_with_len(&mut dft, i);
         }
     }
