@@ -5,7 +5,7 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use CFft1D;
+use crate::CFft1D;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
@@ -369,11 +369,12 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use FloatEps;
+    use crate::FloatEps;
     use appro_eq::AbsError;
-    use assert_appro_eq;
+    use crate::assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
-    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng};
+    use rand_xorshift::XorShiftRng;
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(

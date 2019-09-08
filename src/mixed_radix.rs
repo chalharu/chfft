@@ -9,7 +9,7 @@ use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 use num_traits::{cast, NumAssign};
-use prime_factorization::Factor;
+use crate::prime_factorization::Factor;
 
 pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
     source: &[Complex<T>],

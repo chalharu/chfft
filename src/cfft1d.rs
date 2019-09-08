@@ -5,15 +5,15 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use chirpz;
-use mixed_radix;
+use crate::chirpz;
+use crate::mixed_radix;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
-use precompute_utils;
-use prime_factorization;
-use prime_factorization::Factor;
+use crate::precompute_utils;
+use crate::prime_factorization;
+use crate::prime_factorization::Factor;
 
 enum WorkData<T> {
     MixedRadix {
@@ -510,11 +510,12 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use FloatEps;
+    use crate::FloatEps;
     use appro_eq::AbsError;
-    use assert_appro_eq;
+    use crate::assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
-    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng};
+    use rand_xorshift::XorShiftRng;
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[Complex<T>], scalar: T) -> Vec<Complex<T>> {

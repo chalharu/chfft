@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use CFft1D;
+use crate::CFft1D;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
-use precompute_utils;
+use crate::precompute_utils;
 
 /// Perform a real-to-complex one-dimensional Fourier transform
 ///
@@ -317,11 +317,12 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use FloatEps;
+    use crate::FloatEps;
     use appro_eq::AbsError;
-    use assert_appro_eq;
+    use crate::assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
-    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng};
+    use rand_xorshift::XorShiftRng;
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[T], scalar: T) -> Vec<Complex<T>> {
