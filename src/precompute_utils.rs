@@ -5,11 +5,11 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+use crate::prime_factorization::Factor;
 use num_complex::Complex;
 use num_traits::cast;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
-use crate::prime_factorization::Factor;
 use std::cmp;
 
 #[inline]

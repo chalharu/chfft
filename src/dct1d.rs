@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+use crate::precompute_utils;
 use crate::CFft1D;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
-use crate::precompute_utils;
 
 /// Perform a discrete cosine transform
 ///
@@ -401,9 +401,9 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::assert_appro_eq;
     use crate::FloatEps;
     use appro_eq::AbsError;
-    use crate::assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
     use rand::{Rng, SeedableRng};
     use rand_xorshift::XorShiftRng;
@@ -416,7 +416,7 @@ mod tests {
                     x + source[j]
                         * (T::PI() / cast(source.len() * 2).unwrap()
                             * cast::<_, T>((j * 2 + 1) * i).unwrap())
-                            .cos()
+                        .cos()
                 }) * scalar
             })
             .collect::<Vec<_>>()

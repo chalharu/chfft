@@ -369,9 +369,9 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::assert_appro_eq;
     use crate::FloatEps;
     use appro_eq::AbsError;
-    use crate::assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
     use rand::{Rng, SeedableRng};
     use rand_xorshift::XorShiftRng;
@@ -390,7 +390,8 @@ mod tests {
                                 y + source[j][l]
                                     * Complex::<T>::from_polar(
                                         &one(),
-                                        &(-cast::<_, T>(2).unwrap() * T::PI()
+                                        &(-cast::<_, T>(2).unwrap()
+                                            * T::PI()
                                             * ((cast::<_, T>(i * j).unwrap()
                                                 / cast(source.len()).unwrap())
                                                 + cast::<_, T>(k * l).unwrap()

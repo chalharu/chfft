@@ -5,11 +5,11 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+use crate::prime_factorization::Factor;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 use num_traits::{cast, NumAssign};
-use crate::prime_factorization::Factor;
 
 pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
     source: &[Complex<T>],
@@ -22,7 +22,8 @@ pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
     scaler: T,
 ) -> Vec<Complex<T>> {
     // 入力の並び替え
-    let mut ret = ids.iter()
+    let mut ret = ids
+        .iter()
         .map(|&i| {
             if scaler != one() {
                 source[i].scale(scaler) // このタイミングで割り戻しておく
