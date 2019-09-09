@@ -5,11 +5,11 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use mixed_radix;
+use crate::mixed_radix;
 use num_complex::Complex;
-use num_traits::NumAssign;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
+use num_traits::NumAssign;
 
 pub fn convert_rad2_inplace<T: Float + NumAssign>(
     source: &mut [Complex<T>],
