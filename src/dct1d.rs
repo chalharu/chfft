@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use CFft1D;
+use crate::precompute_utils;
+use crate::CFft1D;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
-use precompute_utils;
 
 /// Perform a discrete cosine transform
 ///
@@ -143,7 +143,7 @@ enum Dct1DWorkers<T> {
 
 impl<T: Float + FloatConst + NumAssign> Dct1DWorkers<T> {
     // 本当はDerefMutを定義したいが、error[E0495]となる
-    fn unwrap(&mut self) -> &mut DctWorker1D<T> {
+    fn unwrap(&mut self) -> &mut dyn DctWorker1D<T> {
         match self {
             &mut Dct1DWorkers::Dct2(ref mut worker) => worker,
             &mut Dct1DWorkers::Dct3(ref mut worker) => worker,
@@ -401,11 +401,12 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use FloatEps;
+    use crate::assert_appro_eq;
+    use crate::FloatEps;
     use appro_eq::AbsError;
-    use assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
-    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng};
+    use rand_xorshift::XorShiftRng;
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[T], scalar: T) -> Vec<T> {
@@ -415,7 +416,7 @@ mod tests {
                     x + source[j]
                         * (T::PI() / cast(source.len() * 2).unwrap()
                             * cast::<_, T>((j * 2 + 1) * i).unwrap())
-                            .cos()
+                        .cos()
                 }) * scalar
             })
             .collect::<Vec<_>>()

@@ -5,12 +5,12 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-use CFft1D;
+use crate::precompute_utils;
+use crate::CFft1D;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::zero;
 use num_traits::{cast, one, NumAssign};
-use precompute_utils;
 
 /// Perform a Modified discrete cosine transform
 ///
@@ -49,8 +49,10 @@ fn sine_window<T: Float + FloatConst>(l: usize, p: usize) -> T {
 fn vorbis_window<T: Float + FloatConst>(l: usize, p: usize) -> T {
     ((T::PI() * (cast::<_, T>(p).unwrap() + cast(0.5).unwrap()) / cast(l).unwrap())
         .sin()
-        .powi(2) * T::PI() * cast(0.5).unwrap())
-        .sin()
+        .powi(2)
+        * T::PI()
+        * cast(0.5).unwrap())
+    .sin()
 }
 
 impl<T: Float + FloatConst + NumAssign> Mdct1D<T, fn(usize, usize) -> T> {
@@ -295,11 +297,12 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use FloatEps;
+    use crate::assert_appro_eq;
+    use crate::FloatEps;
     use appro_eq::AbsError;
-    use assert_appro_eq;
     use rand::distributions::{Distribution, Standard};
-    use rand::{Rng, SeedableRng, XorShiftRng};
+    use rand::{Rng, SeedableRng};
+    use rand_xorshift::XorShiftRng;
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst, F>(window_func: F, source: &[T]) -> Vec<T>
@@ -310,10 +313,11 @@ mod tests {
         return (0..(n >> 1))
             .map(|m| {
                 (0..source.len()).fold(zero(), |x: T, k| {
-                    x + window_func(n, k) * source[k]
+                    x + window_func(n, k)
+                        * source[k]
                         * (T::PI() / cast(n << 1).unwrap()
                             * cast::<_, T>((1 + (n >> 1) + (k << 1)) * (1 + (m << 1))).unwrap())
-                            .cos()
+                        .cos()
                 })
             })
             .collect::<Vec<_>>();
@@ -331,7 +335,7 @@ mod tests {
                         x + source[m]
                             * (T::PI() / cast(n << 1).unwrap()
                                 * cast::<_, T>((1 + (n >> 1) + (k << 1)) * (1 + (m << 1))).unwrap())
-                                .cos()
+                            .cos()
                     })
             })
             .collect::<Vec<_>>();

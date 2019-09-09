@@ -7,16 +7,6 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
-extern crate num_complex;
-extern crate num_traits;
-
-#[cfg(test)]
-extern crate rand;
-
-#[cfg(test)]
-#[macro_use]
-extern crate appro_eq;
-
 mod chirpz;
 mod mixed_radix;
 mod precompute_utils;
@@ -41,13 +31,13 @@ trait FloatEps {
 
 #[cfg(test)]
 mod tests {
-    impl ::FloatEps for f32 {
+    impl crate::FloatEps for f32 {
         fn eps() -> Self {
             1e-2
         }
     }
 
-    impl ::FloatEps for f64 {
+    impl crate::FloatEps for f64 {
         fn eps() -> Self {
             1e-10
         }
@@ -64,5 +54,5 @@ fn assert_appro_eq<
     expected: &C,
     actual: &B,
 ) {
-    assert_appro_eq!(&expected, &actual, A::eps());
+    appro_eq::assert_appro_eq!(&expected, &actual, A::eps());
 }

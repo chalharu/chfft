@@ -21,32 +21,38 @@ impl Iterator for FactorIterator {
     fn next(&mut self) -> Option<usize> {
         loop {
             match self.prime {
-                4 => if self.value & 3 == 0 {
-                    self.value >>= 2;
-                    return Some(4);
-                } else {
-                    self.prime = 2;
-                },
-                2 => if self.value & 1 == 0 {
-                    self.value >>= 1;
-                    return Some(2);
-                } else {
-                    self.prime = 3;
-                },
-                _ => if self.value >= self.prime * self.prime {
-                    if self.value % self.prime == 0 {
-                        self.value /= self.prime;
-                        return Some(self.prime);
+                4 => {
+                    if self.value & 3 == 0 {
+                        self.value >>= 2;
+                        return Some(4);
                     } else {
-                        self.prime += 2;
+                        self.prime = 2;
                     }
-                } else if self.value > 1 {
-                    let v = self.value;
-                    self.value = 0;
-                    return Some(v);
-                } else {
-                    return None;
-                },
+                }
+                2 => {
+                    if self.value & 1 == 0 {
+                        self.value >>= 1;
+                        return Some(2);
+                    } else {
+                        self.prime = 3;
+                    }
+                }
+                _ => {
+                    if self.value >= self.prime * self.prime {
+                        if self.value % self.prime == 0 {
+                            self.value /= self.prime;
+                            return Some(self.prime);
+                        } else {
+                            self.prime += 2;
+                        }
+                    } else if self.value > 1 {
+                        let v = self.value;
+                        self.value = 0;
+                        return Some(v);
+                    } else {
+                        return None;
+                    }
+                }
             }
         }
     }
