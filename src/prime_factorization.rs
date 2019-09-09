@@ -22,7 +22,7 @@ impl Iterator for FactorIterator {
         loop {
             match self.prime {
                 4 => {
-                    if self.value & 3 == 0 {
+                    if self.value.trailing_zeros() >= 2 {
                         self.value >>= 2;
                         return Some(4);
                     } else {
@@ -59,10 +59,7 @@ impl Iterator for FactorIterator {
 }
 
 fn prime_factorization_iter(value: usize) -> FactorIterator {
-    FactorIterator {
-        value: value,
-        prime: 4,
-    }
+    FactorIterator { value, prime: 4 }
 }
 
 // 素因数分解
@@ -89,7 +86,7 @@ pub fn prime_factorization(value: usize, max: usize) -> Vec<Factor> {
                     }
                     factors.push(Factor {
                         value: prime,
-                        count: count,
+                        count,
                     });
                 }
             }
@@ -102,7 +99,7 @@ pub fn prime_factorization(value: usize, max: usize) -> Vec<Factor> {
     if count > 0 {
         factors.push(Factor {
             value: prime,
-            count: count,
+            count,
         });
     }
     if fac4count != 0 {

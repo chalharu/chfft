@@ -16,23 +16,8 @@ use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
 
 enum WorkData<T> {
-    MixedRadix {
-        ids: Vec<usize>,
-        omega: Vec<Complex<T>>,
-        omega_back: Vec<Complex<T>>,
-        factors: Vec<Factor>,
-        ids_inplace: Option<Vec<usize>>,
-    },
-    ChirpZ {
-        level: usize,
-        ids: Vec<usize>,
-        omega: Vec<Complex<T>>,
-        omega_back: Vec<Complex<T>>,
-        src_omega: Vec<Complex<T>>,
-        rot_conj: Vec<Complex<T>>,
-        rot_ft: Vec<Complex<T>>,
-        pow2len_inv: T,
-    },
+    MixedRadix(mixed_radix::MixedRadixData<T>),
+    ChirpZ(chirpz::ChirpzData<T>),
     None,
 }
 
@@ -125,7 +110,7 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
 
         // 素因数分解
         let factors = prime_factorization::prime_factorization(len, MAX_PRIME);
-        if factors.len() == 0 {
+        if factors.is_empty() {
             // Chrip-Z
             let pow2len = len.next_power_of_two() << 1;
             let lv = pow2len.trailing_zeros() as usize;
@@ -155,27 +140,26 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
                 rot.push(t);
             }
 
-            match &mut self.work {
-                &mut WorkData::ChirpZ {
-                    level,
-                    ref ids,
-                    ref omega,
-                    omega_back: _,
-                    src_omega: ref mut org_src_omega,
-                    rot_conj: ref mut org_rot_conj,
-                    rot_ft: ref mut org_rot_ft,
-                    ref pow2len_inv,
-                } => {
-                    if level == lv {
-                        *org_src_omega = src_omega;
-                        *org_rot_conj = rot_conj;
-                        chirpz::convert_rad2_inplace(&mut rot, lv, ids, omega, false, *pow2len_inv);
-                        *org_rot_ft = rot;
-                        return;
-                    }
+            if let WorkData::ChirpZ(chirpz::ChirpzData {
+                level,
+                ref ids,
+                ref omega,
+                src_omega: ref mut org_src_omega,
+                rot_conj: ref mut org_rot_conj,
+                rot_ft: ref mut org_rot_ft,
+                ref pow2len_inv,
+                ..
+            }) = self.work
+            {
+                if level == lv {
+                    *org_src_omega = src_omega;
+                    *org_rot_conj = rot_conj;
+                    chirpz::convert_rad2_inplace(&mut rot, lv, ids, omega, false, *pow2len_inv);
+                    *org_rot_ft = rot;
+                    return;
                 }
-                _ => {}
             }
+
             // ビットリバースの計算
             let ids = precompute_utils::calc_bitreverse2inplace(precompute_utils::calc_bitreverse(
                 len,
@@ -191,34 +175,34 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
                 ],
             ));
             let omega = precompute_utils::calc_omega(pow2len);
-            let omega_back = omega.iter().rev().map(|x| *x).collect::<Vec<_>>();
+            let omega_back = omega.iter().rev().copied().collect::<Vec<_>>();
             let pow2len_inv = T::one() / cast(pow2len).unwrap();
             chirpz::convert_rad2_inplace(&mut rot, lv, &ids, &omega, false, pow2len_inv);
 
-            self.work = WorkData::ChirpZ {
+            self.work = WorkData::ChirpZ(chirpz::ChirpzData {
                 level: lv,
-                ids: ids,
-                omega: omega,
-                omega_back: omega_back,
-                src_omega: src_omega,
-                rot_conj: rot_conj,
+                ids,
+                omega,
+                omega_back,
+                src_omega,
+                rot_conj,
                 rot_ft: rot,
-                pow2len_inv: pow2len_inv,
-            };
+                pow2len_inv,
+            });
         } else {
             // Mixed-Radix
 
             // ωの事前計算
             let omega = precompute_utils::calc_omega(len);
-            let omega_back = omega.iter().rev().map(|x| *x).collect::<Vec<_>>();
+            let omega_back = omega.iter().rev().copied().collect::<Vec<_>>();
 
-            self.work = WorkData::MixedRadix {
+            self.work = WorkData::MixedRadix(mixed_radix::MixedRadixData {
                 ids: precompute_utils::calc_bitreverse(len, &factors),
-                omega: omega,
-                omega_back: omega_back,
-                factors: factors,
+                omega,
+                omega_back,
+                factors,
                 ids_inplace: None,
-            }
+            });
         }
     }
 
@@ -235,39 +219,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
             }
 
             match &self.work {
-                &WorkData::MixedRadix {
-                    ref ids,
-                    ref omega,
-                    ref omega_back,
-                    ref factors,
-                    ids_inplace: _,
-                } => mixed_radix::convert_mixed(
-                    source, len, ids, omega, omega_back, factors, is_back, scaler,
-                ),
-                &WorkData::ChirpZ {
-                    level,
-                    ref ids,
-                    ref omega,
-                    ref omega_back,
-                    ref src_omega,
-                    ref rot_conj,
-                    ref rot_ft,
-                    ref pow2len_inv,
-                } => chirpz::convert_chirpz(
-                    source,
-                    len,
-                    level,
-                    ids,
-                    omega,
-                    omega_back,
-                    src_omega,
-                    rot_conj,
-                    rot_ft,
-                    is_back,
-                    *pow2len_inv,
-                    scaler,
-                ),
-                &WorkData::None => source.to_vec(),
+                WorkData::MixedRadix(ref data) => {
+                    mixed_radix::convert_mixed(source, len, is_back, scaler, data)
+                }
+                WorkData::ChirpZ(ref data) => {
+                    chirpz::convert_chirpz(source, len, is_back, scaler, data)
+                }
+                WorkData::None => source.to_vec(),
             }
         }
     }
@@ -282,55 +240,17 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
                 self.setup(len);
             }
 
-            match &mut self.work {
-                &mut WorkData::MixedRadix {
-                    ref ids,
-                    ref omega,
-                    ref omega_back,
-                    ref factors,
-                    ref mut ids_inplace,
-                } => {
-                    match ids_inplace {
-                        &mut Option::None => {
-                            *ids_inplace =
-                                Some(precompute_utils::calc_bitreverse2inplace(ids.to_vec()))
-                        }
-                        _ => {}
-                    };
-                    mixed_radix::convert_mixed_inplace(
-                        source,
-                        len,
-                        ids_inplace.as_ref().unwrap(),
-                        omega,
-                        omega_back,
-                        factors,
-                        is_back,
-                        scaler,
-                    );
+            match self.work {
+                WorkData::MixedRadix(ref mut data) => {
+                    if data.ids_inplace.is_none() {
+                        data.ids_inplace =
+                            Some(precompute_utils::calc_bitreverse2inplace(data.ids.to_vec()))
+                    }
+                    mixed_radix::convert_mixed_inplace(source, len, is_back, scaler, data);
                 }
-                &mut WorkData::ChirpZ {
-                    level,
-                    ref ids,
-                    ref omega,
-                    ref omega_back,
-                    ref src_omega,
-                    ref rot_conj,
-                    ref rot_ft,
-                    ref pow2len_inv,
-                } => chirpz::convert_chirpz_inplace(
-                    source,
-                    len,
-                    level,
-                    ids,
-                    omega,
-                    omega_back,
-                    src_omega,
-                    rot_conj,
-                    rot_ft,
-                    is_back,
-                    *pow2len_inv,
-                    scaler,
-                ),
+                WorkData::ChirpZ(ref data) => {
+                    chirpz::convert_chirpz_inplace(source, len, is_back, scaler, data)
+                }
                 _ => {}
             };
         }
@@ -499,6 +419,18 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// ```
     pub fn backward0i(&mut self, source: &mut [Complex<T>]) {
         self.convert_inplace(source, true, one());
+    }
+}
+
+impl<T: Float + FloatConst + NumAssign> Default for CFft1D<T> {
+    /// Returns a instances to execute FFT
+    ///
+    /// ```rust
+    /// use chfft::CFft1D;
+    /// let mut fft = CFft1D::<f64>::default();
+    /// ```
+    fn default() -> Self {
+        Self::new()
     }
 }
 
