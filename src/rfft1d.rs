@@ -83,11 +83,11 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
 
         Self {
             fft: CFft1D::with_len(len >> 1),
-            len: len,
-            scaler_n: scaler_n,
+            len,
+            scaler_n,
             scaler_u: scaler_n.sqrt(),
-            coef: coef,
-            bcoef: bcoef,
+            coef,
+            bcoef,
             work: vec![zero(); len >> 1],
         }
     }
@@ -145,7 +145,7 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
         }
 
         ret[0] = Complex::new(self.work[0].re + self.work[0].im, zero());
-        if self.len & 3 == 0 {
+        if self.len.trailing_zeros() >= 2 {
             ret[qlen] = self.work[qlen].conj();
         }
         ret[hlen] = Complex::new(self.work[0].re - self.work[0].im, zero());
@@ -169,7 +169,7 @@ impl<T: Float + FloatConst + NumAssign> RFft1D<T> {
             source[0].re - source[hlen].re,
         )
         .scale(cast(0.5).unwrap());
-        if self.len & 3 == 0 {
+        if self.len.trailing_zeros() >= 2 {
             self.work[qlen] = source[qlen].conj();
         }
 
@@ -327,7 +327,7 @@ mod tests {
     use std::fmt::Debug;
 
     fn convert<T: Float + FloatConst>(source: &[T], scalar: T) -> Vec<Complex<T>> {
-        (0..((source.len() >> 1) + 1))
+        (0..=(source.len() >> 1))
             .map(|i| {
                 (1..source.len()).fold(Complex::new(source[0], zero()), |x, j| {
                     x + Complex::new(source[j], zero())

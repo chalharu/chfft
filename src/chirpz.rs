@@ -11,11 +11,22 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use num_traits::NumAssign;
 
+pub struct ChirpzData<T> {
+    pub level: usize,
+    pub ids: Vec<usize>,
+    pub omega: Vec<Complex<T>>,
+    pub omega_back: Vec<Complex<T>>,
+    pub src_omega: Vec<Complex<T>>,
+    pub rot_conj: Vec<Complex<T>>,
+    pub rot_ft: Vec<Complex<T>>,
+    pub pow2len_inv: T,
+}
+
 pub fn convert_rad2_inplace<T: Float + NumAssign>(
     source: &mut [Complex<T>],
     level: usize,
-    ids: &Vec<usize>,
-    omega: &Vec<Complex<T>>,
+    ids: &[usize],
+    omega: &[Complex<T>],
     is_back: bool,
     pow2len_inv: T,
 ) {
@@ -27,8 +38,8 @@ pub fn convert_rad2_inplace<T: Float + NumAssign>(
     }
 
     if is_back {
-        for i in 0..source.len() {
-            source[i] = source[i].scale(pow2len_inv);
+        for data in source.iter_mut() {
+            *data = data.scale(pow2len_inv);
         }
     }
 
@@ -56,35 +67,42 @@ pub fn convert_rad2_inplace<T: Float + NumAssign>(
 pub fn convert_chirpz<T: Float + NumAssign>(
     source: &[Complex<T>],
     srclen: usize,
-    level: usize,
-    ids: &Vec<usize>,
-    omega: &Vec<Complex<T>>,
-    omega_back: &Vec<Complex<T>>,
-    src_omega: &Vec<Complex<T>>,
-    rot_conj: &Vec<Complex<T>>,
-    rot_ft: &Vec<Complex<T>>,
     is_back: bool,
-    pow2len_inv: T,
     scaler: T,
+    data: &ChirpzData<T>,
 ) -> Vec<Complex<T>> {
-    let len = 1 << level;
+    let len = 1 << data.level;
     let dlen = srclen << 1;
 
     let mut a = Vec::with_capacity(len);
 
-    for i in 0..source.len() {
-        let w = src_omega[(i * i) % dlen];
-        a.push(source[i] * w);
+    for (i, s) in source.iter().enumerate() {
+        let w = data.src_omega[(i * i) % dlen];
+        a.push(s * w);
     }
     for _ in srclen..len {
         a.push(zero());
     }
 
-    convert_rad2_inplace(&mut a, level, ids, omega, false, pow2len_inv);
-    for i in 0..a.len() {
-        a[i] = a[i] * rot_ft[i];
+    convert_rad2_inplace(
+        &mut a,
+        data.level,
+        &data.ids,
+        &data.omega,
+        false,
+        data.pow2len_inv,
+    );
+    for (i, d) in a.iter_mut().enumerate() {
+        *d *= data.rot_ft[i];
     }
-    convert_rad2_inplace(&mut a, level, ids, omega_back, true, pow2len_inv);
+    convert_rad2_inplace(
+        &mut a,
+        data.level,
+        &data.ids,
+        &data.omega_back,
+        true,
+        data.pow2len_inv,
+    );
 
     // Multiply phase factor
     (0..srclen)
@@ -99,9 +117,9 @@ pub fn convert_chirpz<T: Float + NumAssign>(
         })
         .map(move |i| {
             if scaler != one() {
-                a[i] * rot_conj[i].scale(scaler)
+                a[i] * data.rot_conj[i].scale(scaler)
             } else {
-                a[i] * rot_conj[i]
+                a[i] * data.rot_conj[i]
             }
         })
         .collect::<Vec<_>>()
@@ -110,38 +128,45 @@ pub fn convert_chirpz<T: Float + NumAssign>(
 pub fn convert_chirpz_inplace<T: Float + NumAssign>(
     source: &mut [Complex<T>],
     srclen: usize,
-    level: usize,
-    ids: &Vec<usize>,
-    omega: &Vec<Complex<T>>,
-    omega_back: &Vec<Complex<T>>,
-    src_omega: &Vec<Complex<T>>,
-    rot_conj: &Vec<Complex<T>>,
-    rot_ft: &Vec<Complex<T>>,
     is_back: bool,
-    pow2len_inv: T,
     scaler: T,
+    data: &ChirpzData<T>,
 ) {
-    let len = 1 << level;
+    let len = 1 << data.level;
     let dlen = srclen << 1;
 
     let mut a = Vec::with_capacity(len);
 
-    for i in 0..source.len() {
-        let w = src_omega[(i * i) % dlen];
-        a.push(source[i] * w);
+    for (i, s) in source.iter().enumerate() {
+        let w = data.src_omega[(i * i) % dlen];
+        a.push(s * w);
     }
     for _ in srclen..len {
         a.push(zero());
     }
 
-    convert_rad2_inplace(&mut a, level, ids, omega, false, pow2len_inv);
-    for i in 0..a.len() {
-        a[i] = a[i] * rot_ft[i];
+    convert_rad2_inplace(
+        &mut a,
+        data.level,
+        &data.ids,
+        &data.omega,
+        false,
+        data.pow2len_inv,
+    );
+    for (i, d) in a.iter_mut().enumerate() {
+        *d *= data.rot_ft[i];
     }
-    convert_rad2_inplace(&mut a, level, ids, omega_back, true, pow2len_inv);
+    convert_rad2_inplace(
+        &mut a,
+        data.level,
+        &data.ids,
+        &data.omega_back,
+        true,
+        data.pow2len_inv,
+    );
 
     // Multiply phase factor
-    for i in 0..srclen {
+    for (i, si) in source.iter_mut().take(srclen).enumerate() {
         let j = if i == 0 {
             0
         } else if is_back {
@@ -149,10 +174,10 @@ pub fn convert_chirpz_inplace<T: Float + NumAssign>(
         } else {
             i
         };
-        source[i] = if scaler != one() {
-            a[j] * rot_conj[j].scale(scaler)
+        *si = if scaler != one() {
+            a[j] * data.rot_conj[j].scale(scaler)
         } else {
-            a[j] * rot_conj[j]
+            a[j] * data.rot_conj[j]
         };
     }
 }

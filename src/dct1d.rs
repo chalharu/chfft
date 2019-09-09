@@ -144,9 +144,9 @@ enum Dct1DWorkers<T> {
 impl<T: Float + FloatConst + NumAssign> Dct1DWorkers<T> {
     // 本当はDerefMutを定義したいが、error[E0495]となる
     fn unwrap(&mut self) -> &mut dyn DctWorker1D<T> {
-        match self {
-            &mut Dct1DWorkers::Dct2(ref mut worker) => worker,
-            &mut Dct1DWorkers::Dct3(ref mut worker) => worker,
+        match *self {
+            Dct1DWorkers::Dct2(ref mut worker) => worker,
+            Dct1DWorkers::Dct3(ref mut worker) => worker,
         }
     }
 }
@@ -267,7 +267,7 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct2Worker1D<T> {
             ret[hlen - i] = k.re;
             ret[hlen + i] = k.im;
         }
-        if self.len & 3 == 0 {
+        if self.len.trailing_zeros() >= 2 {
             let x = self.work[qlen] * self.omega[qlen];
             ret[qlen] = x.re;
             ret[self.len - qlen] = x.im;
@@ -362,7 +362,7 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
 
         let qlen = (self.len + 3) >> 2;
 
-        if self.len & 3 == 0 {
+        if self.len.trailing_zeros() >= 2 {
             self.work[qlen] = Complex::new(source[qlen], source[self.len - qlen])
                 * self.omega[qlen].scale(scaler);
         }

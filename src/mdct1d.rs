@@ -107,13 +107,13 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
         }
         Self {
             fft: CFft1D::with_len(len >> 2),
-            len: len,
+            len,
             scaler_u: T::one() / cast::<_, T>(len >> 1).unwrap().sqrt(),
             scaler_ui: cast::<_, T>(len >> 1).unwrap().sqrt(),
             twiddle: Self::calc_twiddle(len),
             work: vec![zero(); len >> 2],
             window_scaler: Self::calc_window(&window_func, len),
-            window_func: window_func,
+            window_func,
         }
     }
 
@@ -310,7 +310,7 @@ mod tests {
         F: Fn(usize, usize) -> T,
     {
         let n = source.len();
-        return (0..(n >> 1))
+        (0..(n >> 1))
             .map(|m| {
                 (0..source.len()).fold(zero(), |x: T, k| {
                     x + window_func(n, k)
@@ -320,15 +320,15 @@ mod tests {
                         .cos()
                 })
             })
-            .collect::<Vec<_>>();
+            .collect::<Vec<_>>()
     }
 
-    fn convert_back<T: Float + FloatConst, F>(ref window_func: &F, source: &[T]) -> Vec<T>
+    fn convert_back<T: Float + FloatConst, F>(window_func: F, source: &[T]) -> Vec<T>
     where
         F: Fn(usize, usize) -> T,
     {
         let n = source.len() << 1;
-        return (0..n)
+        (0..n)
             .map(|k| {
                 cast::<_, T>(4.0).unwrap() * window_func(n, k) / cast(n).unwrap()
                     * (0..(n >> 1)).fold(zero(), |x: T, m| {
@@ -338,7 +338,7 @@ mod tests {
                             .cos()
                     })
             })
-            .collect::<Vec<_>>();
+            .collect::<Vec<_>>()
     }
 
     fn test_with_source<
