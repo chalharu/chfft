@@ -95,8 +95,8 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// ```
     pub fn with_len(len_m: usize, len_n: usize) -> Self {
         Self {
-            len_m: len_m,
-            len_n: len_n,
+            len_m,
+            len_n,
             scaler_n: T::one() / cast(len_m * len_n).unwrap(),
             scaler_u: T::one() / cast::<_, T>(len_m * len_n).unwrap().sqrt(),
             fft_m: CFft1D::with_len(len_m),
@@ -121,7 +121,7 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
         self.scaler_u = self.scaler_n.sqrt();
         self.fft_m.setup(len_m);
         self.fft_n.setup(len_n);
-        if self.work.len() != len_n || (self.work.len() > 0 && self.work[0].len() != len_m) {
+        if self.work.len() != len_n || (!self.work.is_empty() && self.work[0].len() != len_m) {
             self.work = vec![vec![zero(); len_m]; len_n];
         }
     }
@@ -333,21 +333,21 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
         is_back: bool,
         scaler: T,
     ) -> Vec<Vec<Complex<T>>> {
-        if source.len() == 0 {
+        if source.is_empty() {
             return Vec::new();
         }
         if source.len() != self.len_m || source[0].len() != self.len_n {
             self.setup(source.len(), source[0].len());
         }
 
-        for i in 0..source.len() {
+        for (i, si) in source.iter().enumerate() {
             let work = if is_back {
-                self.fft_m.backward0(&source[i])
+                self.fft_m.backward0(si)
             } else {
-                self.fft_m.forward0(&source[i])
+                self.fft_m.forward0(si)
             };
-            for j in 0..work.len() {
-                self.work[j][i] = work[j];
+            for (j, &wi) in work.iter().enumerate() {
+                self.work[j][i] = wi;
             }
         }
 
@@ -363,6 +363,18 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
             }
         }
         ret
+    }
+}
+
+impl<T: Float + FloatConst + NumAssign> Default for CFft2D<T> {
+    /// Returns a instances to execute FFT
+    ///
+    /// ```rust
+    /// use chfft::CFft2D;
+    /// let mut fft = CFft2D::<f64>::default();
+    /// ```
+    fn default() -> Self {
+        Self::new()
     }
 }
 

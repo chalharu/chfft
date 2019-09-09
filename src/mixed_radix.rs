@@ -11,18 +11,24 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 use num_traits::{cast, NumAssign};
 
+pub struct MixedRadixData<T> {
+    pub ids: Vec<usize>,
+    pub omega: Vec<Complex<T>>,
+    pub omega_back: Vec<Complex<T>>,
+    pub factors: Vec<Factor>,
+    pub ids_inplace: Option<Vec<usize>>,
+}
+
 pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
     source: &[Complex<T>],
     len: usize,
-    ids: &Vec<usize>,
-    omega: &Vec<Complex<T>>,
-    omega_back: &Vec<Complex<T>>,
-    factors: &Vec<Factor>,
     is_back: bool,
     scaler: T,
+    data: &MixedRadixData<T>,
 ) -> Vec<Complex<T>> {
     // 入力の並び替え
-    let mut ret = ids
+    let mut ret = data
+        .ids
         .iter()
         .map(|&i| {
             if scaler != one() {
@@ -34,43 +40,40 @@ pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
         .collect::<Vec<_>>();
 
     let (omega, im_one) = if is_back {
-        (omega_back, -Complex::i())
+        (&data.omega_back, -Complex::i())
     } else {
-        (omega, Complex::i())
+        (&data.omega, Complex::i())
     };
 
-    fft_kernel(&mut ret, len, omega, factors, &im_one);
+    fft_kernel(&mut ret, len, omega, &data.factors, &im_one);
     ret
 }
 
 pub fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
     source: &mut [Complex<T>],
     len: usize,
-    ids: &Vec<usize>,
-    omega: &Vec<Complex<T>>,
-    omega_back: &Vec<Complex<T>>,
-    factors: &Vec<Factor>,
     is_back: bool,
     scaler: T,
+    data: &MixedRadixData<T>,
 ) {
     // 入力の並び替え
-    for (i, &s) in ids.iter().enumerate() {
+    for (i, &s) in data.ids_inplace.as_ref().unwrap().iter().enumerate() {
         if i != s {
             source.swap(i, s);
         }
     }
 
     let (omega, im_one) = if is_back {
-        (omega_back, -Complex::i())
+        (&data.omega_back, -Complex::i())
     } else {
-        (omega, Complex::i())
+        (&data.omega, Complex::i())
     };
 
-    fft_kernel(source, len, omega, factors, &im_one);
+    fft_kernel(source, len, omega, &data.factors, &im_one);
 
     if scaler != one() {
-        for i in 0..source.len() {
-            source[i] = source[i].scale(scaler);
+        for data in source.iter_mut() {
+            *data = data.scale(scaler);
         }
     }
 }
@@ -78,8 +81,8 @@ pub fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
 pub fn fft_kernel<T: Float + NumAssign + FloatConst>(
     source: &mut [Complex<T>],
     len: usize,
-    omega: &Vec<Complex<T>>,
-    factors: &Vec<Factor>,
+    omega: &[Complex<T>],
+    factors: &[Factor],
     im_one: &Complex<T>,
 ) {
     // FFT
@@ -121,7 +124,7 @@ fn mixed_kernel_radix2<T: Float + NumAssign>(
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
-    omega: &Vec<Complex<T>>,
+    omega: &[Complex<T>],
     len: usize,
 ) {
     for _ in 0..count {
@@ -147,7 +150,7 @@ fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign>(
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
-    omega: &Vec<Complex<T>>,
+    omega: &[Complex<T>],
     len: usize,
     im_one: &Complex<T>,
 ) {
@@ -183,7 +186,7 @@ pub fn mixed_kernel_radix4<T: Float>(
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
-    omega: &Vec<Complex<T>>,
+    omega: &[Complex<T>],
     len: usize,
     im_one: &Complex<T>,
 ) {
@@ -222,7 +225,7 @@ fn mixed_kernel_radix5<T: Float + FloatConst>(
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
-    omega: &Vec<Complex<T>>,
+    omega: &[Complex<T>],
     len: usize,
     im_one: &Complex<T>,
 ) {
@@ -285,7 +288,7 @@ fn mixed_kernel_other<T: Float>(
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
-    omega: &Vec<Complex<T>>,
+    omega: &[Complex<T>],
     len: usize,
 ) {
     let rot_width = len / value;

@@ -24,7 +24,7 @@ pub fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Co
 pub fn calc_omega<T: Float + FloatConst>(len: usize) -> Vec<Complex<T>> {
     let mut omega = Vec::with_capacity(len + 1);
     omega.push(one());
-    if len & 3 == 0 {
+    if len.trailing_zeros() >= 2 {
         // 4で割り切れる(下位2ビットが0)ならば
         let q = len >> 2;
         let h = len >> 1;
@@ -73,10 +73,10 @@ pub fn calc_bitreverse(len: usize, factors: &[Factor]) -> Vec<usize> {
     let mut ids = Vec::<usize>::with_capacity(len);
     let mut llen = 1_usize;
     ids.push(0);
-    for ref f in factors {
+    for f in factors {
         for _ in 0..f.count {
-            for i in 0..llen {
-                ids[i] *= f.value;
+            for id in ids.iter_mut().take(llen) {
+                *id *= f.value;
             }
             for i in 1..f.value {
                 for j in 0..llen {
@@ -96,10 +96,7 @@ pub fn calc_bitreverse2inplace(source: Vec<usize>) -> Vec<usize> {
 
     (0..source.len())
         .map(|i| {
-            let r = (i..nums.len())
-                .filter(|&j| nums[j] == source[i])
-                .next()
-                .unwrap();
+            let r = (i..nums.len()).find(|&j| nums[j] == source[i]).unwrap();
             nums.swap(i, r);
             r
         })
