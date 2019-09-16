@@ -512,4 +512,17 @@ mod tests {
             test_with_len(&mut dct2, &mut dct3, i << 1);
         }
     }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length() {
+        Dct1D::<f64>::new(2, 11, false);
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length_convert() {
+        let mut fft = Dct1D::<f64>::new(2, 8, false);
+        fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
+    }
 }
