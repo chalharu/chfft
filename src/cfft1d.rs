@@ -420,6 +420,40 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     pub fn backward0i(&mut self, source: &mut [Complex<T>]) {
         self.convert_inplace(source, true, one());
     }
+
+    /// The \\(\frac 1 {\sqrt n}\\) scaling factor and in-place forward transform
+    ///
+    /// ```rust
+    /// extern crate chfft;
+    /// extern crate num_complex;
+    ///
+    /// let mut input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
+    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    ///
+    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// fft.forwardui(&mut input);
+    /// ```
+    pub fn forwardui(&mut self, source: &mut [Complex<T>]) {
+        let scaler = self.scaler_u;
+        self.convert_inplace(source, false, scaler);
+    }
+
+    /// The \\(\frac 1 {\sqrt n}\\) scaling factor and in-place backward transform
+    ///
+    /// ```rust
+    /// extern crate chfft;
+    /// extern crate num_complex;
+    ///
+    /// let mut input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
+    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    ///
+    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// fft.backwardui(&mut input);
+    /// ```
+    pub fn backwardui(&mut self, source: &mut [Complex<T>]) {
+        let scaler = self.scaler_u;
+        self.convert_inplace(source, true, scaler);
+    }
 }
 
 impl<T: Float + FloatConst + NumAssign> Default for CFft1D<T> {
@@ -497,6 +531,15 @@ mod tests {
 
         let mut actual = fft.forwardn(source);
         fft.backward0i(&mut actual);
+        assert_appro_eq(source, &actual);
+
+        let expected = fft.forwardu(source);
+        let mut actual = source.to_vec();
+        fft.forwardui(&mut actual);
+        assert_appro_eq(&expected, &actual);
+
+        let mut actual = fft.forwardu(source);
+        fft.backwardui(&mut actual);
         assert_appro_eq(source, &actual);
     }
 

@@ -59,7 +59,6 @@ mod tests {
 }
 
 #[cfg(test)]
-#[inline(always)]
 fn assert_appro_eq<
     A: FloatEps + std::fmt::Debug + PartialOrd,
     B: std::fmt::Debug + ?Sized,
