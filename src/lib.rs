@@ -24,6 +24,20 @@ pub use dct1d::Dct1D;
 pub use mdct1d::Mdct1D;
 pub use rfft1d::RFft1D;
 
+pub(crate) trait QuarterRotation {
+    fn quarter_turn(self) -> Self;
+    fn three_quarter_turn(self) -> Self;
+}
+
+impl<T: num_traits::Float> QuarterRotation for num_complex::Complex<T> {
+    fn quarter_turn(self) -> Self {
+        num_complex::Complex::new(-self.im, self.re)
+    }
+    fn three_quarter_turn(self) -> Self {
+        num_complex::Complex::new(self.im, -self.re)
+    }
+}
+
 #[cfg(test)]
 trait FloatEps {
     fn eps() -> Self;

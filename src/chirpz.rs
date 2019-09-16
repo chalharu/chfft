@@ -6,6 +6,7 @@
 //! http://mozilla.org/MPL/2.0/ .
 
 use crate::mixed_radix;
+use crate::QuarterRotation;
 use num_complex::Complex;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
@@ -59,9 +60,27 @@ pub fn convert_rad2_inplace<T: Float + NumAssign>(
         }
     }
 
-    let im_one = if is_back { -Complex::i() } else { Complex::i() };
-
-    mixed_radix::mixed_kernel_radix4(source, level >> 1, &mut po2, &mut rad, omega, len, &im_one);
+    if is_back {
+        mixed_radix::mixed_kernel_radix4(
+            source,
+            level >> 1,
+            &mut po2,
+            &mut rad,
+            omega,
+            len,
+            &QuarterRotation::three_quarter_turn,
+        );
+    } else {
+        mixed_radix::mixed_kernel_radix4(
+            source,
+            level >> 1,
+            &mut po2,
+            &mut rad,
+            omega,
+            len,
+            &QuarterRotation::quarter_turn,
+        );
+    }
 }
 
 pub fn convert_chirpz<T: Float + NumAssign>(
