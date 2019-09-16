@@ -20,7 +20,7 @@ mod rfft1d;
 
 pub use cfft1d::CFft1D;
 pub use cfft2d::CFft2D;
-pub use dct1d::Dct1D;
+pub use dct1d::{Dct1D, DctType};
 pub use mdct1d::Mdct1D;
 pub use rfft1d::RFft1D;
 

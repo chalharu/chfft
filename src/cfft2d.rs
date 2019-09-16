@@ -18,8 +18,6 @@ use num_traits::{cast, NumAssign};
 /// # Example
 ///
 /// ```rust
-/// extern crate chfft;
-/// extern crate num_complex;
 /// use num_complex::Complex;
 /// use chfft::CFft2D;
 ///
@@ -129,25 +127,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.forward(&input);
     /// ```
     pub fn forward(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
@@ -157,25 +155,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.forward0(&input);
     /// ```
     pub fn forward0(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
@@ -185,25 +183,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The \\(\frac 1 {\sqrt n}\\) scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.forwardu(&input);
     /// ```
     pub fn forwardu(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
@@ -214,25 +212,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The \\(\frac 1 n\\) scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.forwardn(&input);
     /// ```
     pub fn forwardn(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
@@ -243,25 +241,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The \\(\frac 1 n\\) scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.backward(&input);
     /// ```
     pub fn backward(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
@@ -272,25 +270,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The 1 scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.backward0(&input);
     /// ```
     pub fn backward0(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
@@ -300,25 +298,25 @@ impl<T: Float + FloatConst + NumAssign> CFft2D<T> {
     /// The \\(\frac 1 {\sqrt n}\\) scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use num_complex::Complex;
+    /// use chfft::CFft2D;
     ///
     /// let input = [
     ///     vec![
-    ///         num_complex::Complex::new(2.0, 0.0),
-    ///         num_complex::Complex::new(1.0, 1.0),
-    ///         num_complex::Complex::new(0.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 4.0),
+    ///         Complex::new(2.0, 0.0),
+    ///         Complex::new(1.0, 1.0),
+    ///         Complex::new(0.0, 3.0),
+    ///         Complex::new(2.0, 4.0),
     ///     ],
     ///     vec![
-    ///         num_complex::Complex::new(5.0, 0.0),
-    ///         num_complex::Complex::new(3.0, 1.0),
-    ///         num_complex::Complex::new(2.0, 3.0),
-    ///         num_complex::Complex::new(2.0, 8.0),
+    ///         Complex::new(5.0, 0.0),
+    ///         Complex::new(3.0, 1.0),
+    ///         Complex::new(2.0, 3.0),
+    ///         Complex::new(2.0, 8.0),
     ///     ],
     /// ];
     ///
-    /// let mut fft = chfft::CFft2D::<f64>::with_len(input.len(), input[0].len());
+    /// let mut fft = CFft2D::<f64>::with_len(input.len(), input[0].len());
     /// let output = fft.backwardu(&input);
     /// ```
     pub fn backwardu(&mut self, source: &[Vec<Complex<T>>]) -> Vec<Vec<Complex<T>>> {
