@@ -6,6 +6,7 @@
 //! http://mozilla.org/MPL/2.0/ .
 
 use crate::prime_factorization::Factor;
+use crate::QuarterRotation;
 use num_complex::Complex;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
@@ -27,25 +28,36 @@ pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
     data: &MixedRadixData<T>,
 ) -> Vec<Complex<T>> {
     // 入力の並び替え
-    let mut ret = data
-        .ids
-        .iter()
-        .map(|&i| {
-            if scaler != one() {
-                source[i].scale(scaler) // このタイミングで割り戻しておく
-            } else {
-                source[i]
-            }
-        })
-        .collect::<Vec<_>>();
+    let mut ret = {
+        let iter = data.ids.iter();
 
-    let (omega, im_one) = if is_back {
-        (&data.omega_back, -Complex::i())
-    } else {
-        (&data.omega, Complex::i())
+        if scaler != one() {
+            iter.map(
+                |&i| source[i].scale(scaler), // このタイミングで割り戻しておく
+            )
+            .collect::<Vec<_>>()
+        } else {
+            iter.map(|&i| source[i]).collect::<Vec<_>>()
+        }
     };
 
-    fft_kernel(&mut ret, len, omega, &data.factors, &im_one);
+    if is_back {
+        fft_kernel(
+            &mut ret,
+            len,
+            &data.omega_back,
+            &data.factors,
+            &QuarterRotation::three_quarter_turn,
+        );
+    } else {
+        fft_kernel(
+            &mut ret,
+            len,
+            &data.omega,
+            &data.factors,
+            &QuarterRotation::quarter_turn,
+        );
+    }
     ret
 }
 
@@ -63,13 +75,23 @@ pub fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
         }
     }
 
-    let (omega, im_one) = if is_back {
-        (&data.omega_back, -Complex::i())
+    if is_back {
+        fft_kernel(
+            source,
+            len,
+            &data.omega_back,
+            &data.factors,
+            &QuarterRotation::three_quarter_turn,
+        );
     } else {
-        (&data.omega, Complex::i())
-    };
-
-    fft_kernel(source, len, omega, &data.factors, &im_one);
+        fft_kernel(
+            source,
+            len,
+            &data.omega,
+            &data.factors,
+            &QuarterRotation::quarter_turn,
+        );
+    }
 
     if scaler != one() {
         for data in source.iter_mut() {
@@ -78,12 +100,12 @@ pub fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
     }
 }
 
-pub fn fft_kernel<T: Float + NumAssign + FloatConst>(
+pub fn fft_kernel<T: Float + NumAssign + FloatConst, F: Fn(Complex<T>) -> Complex<T>>(
     source: &mut [Complex<T>],
     len: usize,
     omega: &[Complex<T>],
     factors: &[Factor],
-    im_one: &Complex<T>,
+    turn_func: &F,
 ) {
     // FFT
     let mut po2 = 1;
@@ -95,13 +117,37 @@ pub fn fft_kernel<T: Float + NumAssign + FloatConst>(
                 mixed_kernel_radix2(source, factor.count, &mut po2, &mut rad, omega, len);
             }
             3 => {
-                mixed_kernel_radix3(source, factor.count, &mut po2, &mut rad, omega, len, im_one);
+                mixed_kernel_radix3(
+                    source,
+                    factor.count,
+                    &mut po2,
+                    &mut rad,
+                    omega,
+                    len,
+                    turn_func,
+                );
             }
             4 => {
-                mixed_kernel_radix4(source, factor.count, &mut po2, &mut rad, omega, len, im_one);
+                mixed_kernel_radix4(
+                    source,
+                    factor.count,
+                    &mut po2,
+                    &mut rad,
+                    omega,
+                    len,
+                    turn_func,
+                );
             }
             5 => {
-                mixed_kernel_radix5(source, factor.count, &mut po2, &mut rad, omega, len, im_one);
+                mixed_kernel_radix5(
+                    source,
+                    factor.count,
+                    &mut po2,
+                    &mut rad,
+                    omega,
+                    len,
+                    turn_func,
+                );
             }
             _ => {
                 mixed_kernel_other(
@@ -145,16 +191,16 @@ fn mixed_kernel_radix2<T: Float + NumAssign>(
 }
 
 #[inline]
-fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign>(
+fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign, F: Fn(Complex<T>) -> Complex<T>>(
     ret: &mut [Complex<T>],
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
     omega: &[Complex<T>],
     len: usize,
-    im_one: &Complex<T>,
+    turn_func: &F,
 ) {
-    let t3scaler = im_one.scale((cast::<_, T>(-2.0).unwrap() * T::PI() / cast(3.0).unwrap()).sin());
+    let t3scaler = (cast::<_, T>(-2.0).unwrap() * T::PI() / cast(3.0).unwrap()).sin();
     for _ in 0..count {
         let po2m = *po2;
         *po2 *= 3;
@@ -170,7 +216,7 @@ fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign>(
                 let z2 = ret[pos2] * w2;
                 let t1 = z1 + z2;
                 let t2 = ret[j] - t1.scale(cast(0.5).unwrap());
-                let t3 = (z1 - z2) * t3scaler;
+                let t3 = turn_func(z1 - z2).scale(t3scaler);
                 ret[j] += t1;
                 ret[pos1] = t2 + t3;
                 ret[pos2] = t2 - t3;
@@ -181,14 +227,14 @@ fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign>(
 }
 
 #[inline(always)]
-pub fn mixed_kernel_radix4<T: Float>(
+pub fn mixed_kernel_radix4<T: Float, F: Fn(Complex<T>) -> Complex<T>>(
     ret: &mut [Complex<T>],
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
     omega: &[Complex<T>],
     len: usize,
-    im_one: &Complex<T>,
+    turn_func: &F,
 ) {
     for _ in 0..count {
         let po2m = *po2;
@@ -201,13 +247,16 @@ pub fn mixed_kernel_radix4<T: Float>(
                 let pos1 = j + po2m;
                 let pos2 = pos1 + po2m;
                 let pos3 = pos2 + po2m;
-                let wfb = ret[pos2] * w2;
-                let wfab = ret[j] + wfb;
-                let wfamb = ret[j] - wfb;
+
+                let wfa = ret[j];
                 let wfc = ret[pos1] * w1;
+                let wfb = ret[pos2] * w2;
                 let wfd = ret[pos3] * w3;
+
+                let wfab = wfa + wfb;
+                let wfamb = wfa - wfb;
                 let wfcd = wfc + wfd;
-                let wfcimdi = (wfc - wfd) * im_one;
+                let wfcimdi = turn_func(wfc - wfd);
 
                 ret[j] = wfab + wfcd;
                 ret[pos1] = wfamb - wfcimdi;
@@ -220,14 +269,14 @@ pub fn mixed_kernel_radix4<T: Float>(
 }
 
 #[inline]
-fn mixed_kernel_radix5<T: Float + FloatConst>(
+fn mixed_kernel_radix5<T: Float + FloatConst, F: Fn(Complex<T>) -> Complex<T>>(
     ret: &mut [Complex<T>],
     count: usize,
     po2: &mut usize,
     rad: &mut usize,
     omega: &[Complex<T>],
     len: usize,
-    im_one: &Complex<T>,
+    turn_func: &F,
 ) {
     for _ in 0..count {
         let po2m = *po2;
@@ -263,12 +312,14 @@ fn mixed_kernel_radix5<T: Float + FloatConst>(
                 let t7 = z0 - t5.scale(cast(0.25).unwrap());
                 let t8 = t6 + t7;
                 let t9 = t7 - t6;
-                let t10 = (t3.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin())
-                    + t4.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin()))
-                    * im_one;
-                let t11 = (t3.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin())
-                    - t4.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin()))
-                    * im_one;
+                let t10 = turn_func(
+                    t3.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin())
+                        + t4.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin()),
+                );
+                let t11 = turn_func(
+                    t3.scale((cast::<_, T>(-0.2).unwrap() * T::PI()).sin())
+                        - t4.scale((cast::<_, T>(-0.4).unwrap() * T::PI()).sin()),
+                );
 
                 ret[j] = z0 + t5;
                 ret[pos2] = t8 + t10;
