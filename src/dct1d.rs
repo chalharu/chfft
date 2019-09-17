@@ -27,14 +27,18 @@ use num_traits::{cast, NumAssign};
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct Dct1D<T> {
     worker: Dct1DWorkers<T>,
 }
 
-#[derive(PartialEq)]
+/// DCT Type
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum DctType {
     // One,
+    /// DCT-II
     Two,
+    /// DCT-III
     Three,
     // Four
 }
@@ -140,6 +144,7 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     }
 }
 
+#[derive(Debug)]
 enum Dct1DWorkers<T> {
     Dct2(Dct2Worker1D<T>),
     Dct3(Dct3Worker1D<T>),
@@ -162,6 +167,7 @@ trait DctWorker1D<T> {
     fn convert(&mut self, source: &[T], scaler: T) -> Vec<T>;
 }
 
+#[derive(Debug)]
 struct Dct2Worker1D<T> {
     cfft: Option<CFft1D<T>>,
     omega: Vec<Complex<T>>,
@@ -174,7 +180,7 @@ struct Dct2Worker1D<T> {
 }
 
 impl<T: Float + FloatConst + NumAssign> Dct2Worker1D<T> {
-    pub fn new(len: usize, is_ortho: bool) -> Self {
+    pub(crate) fn new(len: usize, is_ortho: bool) -> Self {
         let mut ret = Self {
             cfft: None,
             omega: Vec::new(),
@@ -284,6 +290,7 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct2Worker1D<T> {
     }
 }
 
+#[derive(Debug)]
 struct Dct3Worker1D<T> {
     cfft: Option<CFft1D<T>>,
     omega: Vec<Complex<T>>,
@@ -296,7 +303,7 @@ struct Dct3Worker1D<T> {
 }
 
 impl<T: Float + FloatConst + NumAssign> Dct3Worker1D<T> {
-    pub fn new(len: usize, is_ortho: bool) -> Self {
+    pub(crate) fn new(len: usize, is_ortho: bool) -> Self {
         let mut ret = Self {
             cfft: None,
             omega: Vec::new(),
@@ -520,13 +527,13 @@ mod tests {
     #[test]
     #[should_panic(expected = "invalid length")]
     fn invalid_length() {
-        Dct1D::<f64>::new(DctType::Two, 11, false);
+        let _ = Dct1D::<f64>::new(DctType::Two, 11, false);
     }
 
     #[test]
     #[should_panic(expected = "invalid length")]
     fn invalid_length_convert() {
         let mut fft = Dct1D::<f64>::new(DctType::Two, 8, false);
-        fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
+        let _ = fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
     }
 }

@@ -56,6 +56,7 @@ use num_traits::{cast, NumAssign};
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct CFft2D<T> {
     len_m: usize,
     len_n: usize,

@@ -12,15 +12,16 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 use num_traits::{cast, NumAssign};
 
-pub struct MixedRadixData<T> {
-    pub ids: Vec<usize>,
-    pub omega: Vec<Complex<T>>,
-    pub omega_back: Vec<Complex<T>>,
-    pub factors: Vec<Factor>,
-    pub ids_inplace: Option<Vec<usize>>,
+#[derive(Debug)]
+pub(crate) struct MixedRadixData<T> {
+    pub(crate) ids: Vec<usize>,
+    pub(crate) omega: Vec<Complex<T>>,
+    pub(crate) omega_back: Vec<Complex<T>>,
+    pub(crate) factors: Vec<Factor>,
+    pub(crate) ids_inplace: Option<Vec<usize>>,
 }
 
-pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
+pub(crate) fn convert_mixed<T: Float + NumAssign + FloatConst>(
     source: &[Complex<T>],
     len: usize,
     is_back: bool,
@@ -61,7 +62,7 @@ pub fn convert_mixed<T: Float + NumAssign + FloatConst>(
     ret
 }
 
-pub fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
+pub(crate) fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
     source: &mut [Complex<T>],
     len: usize,
     is_back: bool,
@@ -100,7 +101,7 @@ pub fn convert_mixed_inplace<T: Float + NumAssign + FloatConst>(
     }
 }
 
-pub fn fft_kernel<T: Float + NumAssign + FloatConst, F: Fn(Complex<T>) -> Complex<T>>(
+pub(crate) fn fft_kernel<T: Float + NumAssign + FloatConst, F: Fn(Complex<T>) -> Complex<T>>(
     source: &mut [Complex<T>],
     len: usize,
     omega: &[Complex<T>],
@@ -227,7 +228,7 @@ fn mixed_kernel_radix3<T: Float + FloatConst + NumAssign, F: Fn(Complex<T>) -> C
 }
 
 #[inline(always)]
-pub fn mixed_kernel_radix4<T: Float, F: Fn(Complex<T>) -> Complex<T>>(
+pub(crate) fn mixed_kernel_radix4<T: Float, F: Fn(Complex<T>) -> Complex<T>>(
     ret: &mut [Complex<T>],
     count: usize,
     po2: &mut usize,

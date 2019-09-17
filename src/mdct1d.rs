@@ -29,6 +29,7 @@ use num_traits::{cast, one, NumAssign};
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct Mdct1D<T, F: Fn(usize, usize) -> T> {
     fft: CFft1D<T>,
     len: usize,
@@ -469,20 +470,20 @@ mod tests {
     #[test]
     #[should_panic(expected = "invalid length")]
     fn invalid_length() {
-        Mdct1D::<f64, _>::new(sine_window, 10);
+        let _ = Mdct1D::<f64, _>::new(sine_window, 10);
     }
 
     #[test]
     #[should_panic(expected = "invalid length")]
     fn invalid_length_convert() {
         let mut fft = Mdct1D::<f64, _>::new(sine_window, 8);
-        fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
+        let _ = fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
     }
 
     #[test]
     #[should_panic(expected = "invalid length")]
     fn invalid_length_convert_back() {
         let mut fft = Mdct1D::<f64, _>::new(sine_window, 8);
-        fft.backward(&(0..).take(8).flat_map(cast::<_, _>).collect::<Vec<_>>());
+        let _ = fft.backward(&(0..).take(8).flat_map(cast::<_, _>).collect::<Vec<_>>());
     }
 }

@@ -15,6 +15,7 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
 
+#[derive(Debug)]
 enum WorkData<T> {
     MixedRadix(mixed_radix::MixedRadixData<T>),
     ChirpZ(chirpz::ChirpzData<T>),
@@ -50,6 +51,7 @@ enum WorkData<T> {
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct CFft1D<T> {
     len: usize,
     scaler_n: T,

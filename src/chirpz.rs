@@ -12,18 +12,19 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use num_traits::NumAssign;
 
-pub struct ChirpzData<T> {
-    pub level: usize,
-    pub ids: Vec<usize>,
-    pub omega: Vec<Complex<T>>,
-    pub omega_back: Vec<Complex<T>>,
-    pub src_omega: Vec<Complex<T>>,
-    pub rot_conj: Vec<Complex<T>>,
-    pub rot_ft: Vec<Complex<T>>,
-    pub pow2len_inv: T,
+#[derive(Debug)]
+pub(crate) struct ChirpzData<T> {
+    pub(crate) level: usize,
+    pub(crate) ids: Vec<usize>,
+    pub(crate) omega: Vec<Complex<T>>,
+    pub(crate) omega_back: Vec<Complex<T>>,
+    pub(crate) src_omega: Vec<Complex<T>>,
+    pub(crate) rot_conj: Vec<Complex<T>>,
+    pub(crate) rot_ft: Vec<Complex<T>>,
+    pub(crate) pow2len_inv: T,
 }
 
-pub fn convert_rad2_inplace<T: Float + NumAssign>(
+pub(crate) fn convert_rad2_inplace<T: Float + NumAssign>(
     source: &mut [Complex<T>],
     level: usize,
     ids: &[usize],
@@ -83,7 +84,7 @@ pub fn convert_rad2_inplace<T: Float + NumAssign>(
     }
 }
 
-pub fn convert_chirpz<T: Float + NumAssign>(
+pub(crate) fn convert_chirpz<T: Float + NumAssign>(
     source: &[Complex<T>],
     srclen: usize,
     is_back: bool,
@@ -144,7 +145,7 @@ pub fn convert_chirpz<T: Float + NumAssign>(
         .collect::<Vec<_>>()
 }
 
-pub fn convert_chirpz_inplace<T: Float + NumAssign>(
+pub(crate) fn convert_chirpz_inplace<T: Float + NumAssign>(
     source: &mut [Complex<T>],
     srclen: usize,
     is_back: bool,
