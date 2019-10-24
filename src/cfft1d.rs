@@ -15,6 +15,9 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 enum WorkData<T> {
     MixedRadix(mixed_radix::MixedRadixData<T>),
     ChirpZ(chirpz::ChirpzData<T>),

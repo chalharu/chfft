@@ -5,6 +5,9 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 pub struct Factor {
     pub value: usize,
     pub count: usize,

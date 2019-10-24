@@ -1,4 +1,5 @@
 #![crate_type = "lib"]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 //! Chalharu's Fastest Fourier Transform.
 //!
@@ -6,6 +7,10 @@
 //! This Source Code is subject to the terms of the Mozilla Public License
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
+
+#[cfg(not(feature = "std"))]
+#[macro_use]
+extern crate alloc;
 
 mod chirpz;
 mod mixed_radix;

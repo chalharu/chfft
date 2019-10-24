@@ -10,7 +10,13 @@ use num_complex::Complex;
 use num_traits::cast;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
+
+#[cfg(feature = "std")]
 use std::cmp;
+#[cfg(not(feature = "std"))]
+use core::cmp;
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
 
 #[inline]
 pub fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Complex<T> {

@@ -12,6 +12,9 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::zero;
 use num_traits::{cast, one, NumAssign};
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 /// Perform a Modified discrete cosine transform
 ///
 /// <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
