@@ -11,19 +11,20 @@ use num_traits::cast;
 use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 
-#[cfg(feature = "std")]
-use std::cmp;
-#[cfg(not(feature = "std"))]
-use core::cmp;
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
+#[cfg(not(feature = "std"))]
+use core::cmp;
+#[cfg(feature = "std")]
+use std::cmp;
 
 #[inline]
 pub fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Complex<T> {
-    Complex::from_polar(
-        &one(),
-        &(cast::<_, T>(-2.0).unwrap() * T::PI() / cast(len).unwrap() * cast(position).unwrap()),
-    )
+    let r: T = one();
+    let theta: T =
+        cast::<_, T>(-2.0).unwrap() * T::PI() / cast(len).unwrap() * cast(position).unwrap();
+    // We can't use Complex::from_polar because it is at the time of writing not no_std compatible
+    Complex::new(r * theta.cos(), r * theta.sin())
 }
 
 // ωの事前計算
