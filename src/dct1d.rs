@@ -20,38 +20,47 @@ use alloc::vec::Vec;
 /// # Example
 ///
 /// ```rust
-/// extern crate chfft;
-///
-/// use chfft::Dct1D;
+/// use chfft::{Dct1D, DctType};
 ///
 /// fn main() {
 ///     let input = [2.0, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
 ///
-///     let mut dct = Dct1D::<f64>::new(2, input.len(), false);
+///     let mut dct = Dct1D::<f64>::new(DctType::Two, input.len(), false);
 ///     let output = dct.forward(&input);
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct Dct1D<T> {
     worker: Dct1DWorkers<T>,
+}
+
+/// DCT Type
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum DctType {
+    // One,
+    /// DCT-II
+    Two,
+    /// DCT-III
+    Three,
+    // Four
 }
 
 impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     /// Returns a instances to execute DCT
     ///
     /// ```rust
-    /// use chfft::Dct1D;
-    /// let mut dct = Dct1D::<f64>::new(2, 1024, false);
+    /// use chfft::{Dct1D, DctType};
+    /// let mut dct = Dct1D::<f64>::new(DctType::Two, 1024, false);
     /// ```
-    pub fn new(dct_type: usize, len: usize, is_ortho: bool) -> Self {
+    pub fn new(dct_type: DctType, len: usize, is_ortho: bool) -> Self {
         if len & 1 != 0 {
             panic!("invalid length")
         }
         Self {
             worker: match dct_type {
-                2 => Dct1DWorkers::Dct2(Dct2Worker1D::new(len, is_ortho)),
-                3 => Dct1DWorkers::Dct3(Dct3Worker1D::new(len, is_ortho)),
-                _ => panic!("invalid dct type"),
+                DctType::Two => Dct1DWorkers::Dct2(Dct2Worker1D::new(len, is_ortho)),
+                DctType::Three => Dct1DWorkers::Dct3(Dct3Worker1D::new(len, is_ortho)),
             },
         }
     }
@@ -59,21 +68,20 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     /// Reinitialize length
     ///
     /// ```rust
-    /// use chfft::Dct1D;
-    /// let mut dct = Dct1D::<f64>::new(2, 1024, false);
+    /// use chfft::{Dct1D, DctType};
+    /// let mut dct = Dct1D::<f64>::new(DctType::Two, 1024, false);
     ///
     /// // reinitialize
-    /// dct.setup(2, 2048, false);
+    /// dct.setup(DctType::Two, 2048, false);
     /// ```
-    pub fn setup(&mut self, dct_type: usize, len: usize, is_ortho: bool) {
+    pub fn setup(&mut self, dct_type: DctType, len: usize, is_ortho: bool) {
         if len & 1 != 0 {
             panic!("invalid length")
         }
         if self.worker.unwrap().dct_type() != dct_type {
             self.worker = match dct_type {
-                2 => Dct1DWorkers::Dct2(Dct2Worker1D::new(len, is_ortho)),
-                3 => Dct1DWorkers::Dct3(Dct3Worker1D::new(len, is_ortho)),
-                _ => panic!("invalid dct type"),
+                DctType::Two => Dct1DWorkers::Dct2(Dct2Worker1D::new(len, is_ortho)),
+                DctType::Three => Dct1DWorkers::Dct3(Dct3Worker1D::new(len, is_ortho)),
             }
         } else {
             self.worker.unwrap().setup(len, is_ortho);
@@ -83,11 +91,11 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::{Dct1D, DctType};
     ///
     /// let input = [2.0, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut dct = chfft::Dct1D::<f64>::new(2, input.len(), false);
+    /// let mut dct = Dct1D::<f64>::new(DctType::Two, input.len(), false);
     /// let output = dct.forward0(&input);
     /// ```
     pub fn forward(&mut self, source: &[T]) -> Vec<T> {
@@ -97,11 +105,11 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::{Dct1D, DctType};
     ///
     /// let input = [2.0, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut dct = chfft::Dct1D::<f64>::new(2, input.len(), false);
+    /// let mut dct = Dct1D::<f64>::new(DctType::Two, input.len(), false);
     /// let output = dct.forward0(&input);
     /// ```
     pub fn forward0(&mut self, source: &[T]) -> Vec<T> {
@@ -111,11 +119,11 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     /// The unitary transform scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::{Dct1D, DctType};
     ///
     /// let input = [2.0, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut dct = chfft::Dct1D::<f64>::new(2, input.len(), false);
+    /// let mut dct = Dct1D::<f64>::new(DctType::Two, input.len(), false);
     /// let output = dct.forwardu(&input);
     /// ```
     pub fn forwardu(&mut self, source: &[T]) -> Vec<T> {
@@ -126,11 +134,11 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     /// The inverse scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::{Dct1D, DctType};
     ///
     /// let input = [2.0, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut dct = chfft::Dct1D::<f64>::new(2, input.len(), false);
+    /// let mut dct = Dct1D::<f64>::new(DctType::Two, input.len(), false);
     /// let output = dct.forwardu(&input);
     /// ```
     pub fn forwardn(&mut self, source: &[T]) -> Vec<T> {
@@ -139,6 +147,7 @@ impl<T: Float + FloatConst + NumAssign> Dct1D<T> {
     }
 }
 
+#[derive(Debug)]
 enum Dct1DWorkers<T> {
     Dct2(Dct2Worker1D<T>),
     Dct3(Dct3Worker1D<T>),
@@ -156,11 +165,12 @@ impl<T: Float + FloatConst + NumAssign> Dct1DWorkers<T> {
 
 trait DctWorker1D<T> {
     fn setup(&mut self, len: usize, is_ortho: bool);
-    fn dct_type(&self) -> usize;
+    fn dct_type(&self) -> DctType;
     fn unitary_scaler(&self) -> T;
     fn convert(&mut self, source: &[T], scaler: T) -> Vec<T>;
 }
 
+#[derive(Debug)]
 struct Dct2Worker1D<T> {
     cfft: Option<CFft1D<T>>,
     omega: Vec<Complex<T>>,
@@ -173,7 +183,7 @@ struct Dct2Worker1D<T> {
 }
 
 impl<T: Float + FloatConst + NumAssign> Dct2Worker1D<T> {
-    pub fn new(len: usize, is_ortho: bool) -> Self {
+    pub(crate) fn new(len: usize, is_ortho: bool) -> Self {
         let mut ret = Self {
             cfft: None,
             omega: Vec::new(),
@@ -218,8 +228,8 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct2Worker1D<T> {
         self.is_ortho = is_ortho;
     }
 
-    fn dct_type(&self) -> usize {
-        2
+    fn dct_type(&self) -> DctType {
+        DctType::Two
     }
 
     fn unitary_scaler(&self) -> T {
@@ -283,6 +293,7 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct2Worker1D<T> {
     }
 }
 
+#[derive(Debug)]
 struct Dct3Worker1D<T> {
     cfft: Option<CFft1D<T>>,
     omega: Vec<Complex<T>>,
@@ -295,7 +306,7 @@ struct Dct3Worker1D<T> {
 }
 
 impl<T: Float + FloatConst + NumAssign> Dct3Worker1D<T> {
-    pub fn new(len: usize, is_ortho: bool) -> Self {
+    pub(crate) fn new(len: usize, is_ortho: bool) -> Self {
         let mut ret = Self {
             cfft: None,
             omega: Vec::new(),
@@ -340,8 +351,8 @@ impl<T: Float + FloatConst + NumAssign> DctWorker1D<T> for Dct3Worker1D<T> {
         self.is_ortho = is_ortho;
     }
 
-    fn dct_type(&self) -> usize {
-        3
+    fn dct_type(&self) -> DctType {
+        DctType::Three
     }
 
     fn unitary_scaler(&self) -> T {
@@ -476,8 +487,8 @@ mod tests {
     fn f64_new() {
         for i in 1..100 {
             test_with_len(
-                &mut Dct1D::<f64>::new(2, i << 1, false),
-                &mut Dct1D::<f64>::new(3, i << 1, false),
+                &mut Dct1D::<f64>::new(DctType::Two, i << 1, false),
+                &mut Dct1D::<f64>::new(DctType::Three, i << 1, false),
                 i << 1,
             );
         }
@@ -487,8 +498,8 @@ mod tests {
     fn f32_new() {
         for i in 1..100 {
             test_with_len(
-                &mut Dct1D::<f32>::new(2, i << 1, false),
-                &mut Dct1D::<f32>::new(3, i << 1, false),
+                &mut Dct1D::<f32>::new(DctType::Two, i << 1, false),
+                &mut Dct1D::<f32>::new(DctType::Three, i << 1, false),
                 i << 1,
             );
         }
@@ -497,10 +508,10 @@ mod tests {
     #[test]
     fn f64_with_setup() {
         for i in 1..100 {
-            let mut dct2 = Dct1D::<f64>::new(2, i << 2, true);
-            let mut dct3 = Dct1D::<f64>::new(2, i << 2, true);
-            dct2.setup(2, i << 1, false);
-            dct3.setup(3, i << 1, false);
+            let mut dct2 = Dct1D::<f64>::new(DctType::Two, i << 2, true);
+            let mut dct3 = Dct1D::<f64>::new(DctType::Two, i << 2, true);
+            dct2.setup(DctType::Two, i << 1, false);
+            dct3.setup(DctType::Three, i << 1, false);
             test_with_len(&mut dct2, &mut dct3, i << 1);
         }
     }
@@ -508,11 +519,24 @@ mod tests {
     #[test]
     fn f32_with_setup() {
         for i in 1..100 {
-            let mut dct2 = Dct1D::<f32>::new(3, i << 2, true);
-            let mut dct3 = Dct1D::<f32>::new(3, i << 2, true);
-            dct2.setup(2, i << 1, false);
-            dct3.setup(3, i << 1, false);
+            let mut dct2 = Dct1D::<f32>::new(DctType::Three, i << 2, true);
+            let mut dct3 = Dct1D::<f32>::new(DctType::Three, i << 2, true);
+            dct2.setup(DctType::Two, i << 1, false);
+            dct3.setup(DctType::Three, i << 1, false);
             test_with_len(&mut dct2, &mut dct3, i << 1);
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length() {
+        let _ = Dct1D::<f64>::new(DctType::Two, 11, false);
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length_convert() {
+        let mut fft = Dct1D::<f64>::new(DctType::Two, 8, false);
+        let _ = fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
     }
 }

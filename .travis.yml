@@ -70,7 +70,9 @@ script:
     ghp-import -n target/doc
   fi
 - |
-  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+  if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
+     [ "${TRAVIS_PULL_REQUEST}" = "false" ] &&
+     [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
     cargo login ${CRATES_TOKEN} &&
     cargo package
   fi

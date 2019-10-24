@@ -8,9 +8,10 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
-pub struct Factor {
-    pub value: usize,
-    pub count: usize,
+#[derive(Debug)]
+pub(crate) struct Factor {
+    pub(crate) value: usize,
+    pub(crate) count: usize,
 }
 
 struct FactorIterator {
@@ -66,7 +67,7 @@ fn prime_factorization_iter(value: usize) -> FactorIterator {
 }
 
 // 素因数分解
-pub fn prime_factorization(value: usize, max: usize) -> Vec<Factor> {
+pub(crate) fn prime_factorization(value: usize, max: usize) -> Vec<Factor> {
     let mut factors = Vec::<Factor>::new();
     let mut count = 0;
     let mut prime = 0;

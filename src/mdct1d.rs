@@ -22,8 +22,6 @@ use alloc::vec::Vec;
 /// # Example
 ///
 /// ```rust
-/// extern crate chfft;
-///
 /// use chfft::Mdct1D;
 ///
 /// fn main() {
@@ -34,6 +32,7 @@ use alloc::vec::Vec;
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct Mdct1D<T, F: Fn(usize, usize) -> T> {
     fft: CFft1D<T>,
     len: usize,
@@ -101,8 +100,8 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
     /// Returns a instances to execute DCT
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// let mut mdct = chfft::Mdct1D::new(|l, p| (std::f64::consts::PI * (p as f64 + 0.5) / l as f64).sin(), 1024);
+    /// use chfft::Mdct1D;
+    /// let mut mdct = Mdct1D::new(|l, p| (std::f64::consts::PI * (p as f64 + 0.5) / l as f64).sin(), 1024);
     /// ```
     pub fn new(window_func: F, len: usize) -> Self {
         if len & 3 != 0 {
@@ -145,11 +144,11 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::Mdct1D;
     ///
     /// let input = [2.0 as f64, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut mdct = chfft::Mdct1D::with_sine(input.len());
+    /// let mut mdct = Mdct1D::with_sine(input.len());
     /// let output = mdct.forward(&input);
     /// ```
     pub fn forward(&mut self, source: &[T]) -> Vec<T> {
@@ -160,11 +159,11 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
     /// The 1 scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::Mdct1D;
     ///
     /// let input = [2.0 as f64, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut mdct = chfft::Mdct1D::with_sine(input.len() << 1);
+    /// let mut mdct = Mdct1D::with_sine(input.len() << 1);
     /// let output = mdct.backward(&input);
     /// ```
     pub fn backward(&mut self, source: &[T]) -> Vec<T> {
@@ -175,11 +174,11 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
     /// The \\(\sqrt{\frac 2 n}\\) scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::Mdct1D;
     ///
     /// let input = [2.0 as f64, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut mdct = chfft::Mdct1D::with_sine(input.len());
+    /// let mut mdct = Mdct1D::with_sine(input.len());
     /// let output = mdct.forward(&input);
     /// ```
     pub fn forwardu(&mut self, source: &[T]) -> Vec<T> {
@@ -189,11 +188,11 @@ impl<T: Float + FloatConst + NumAssign, F: Fn(usize, usize) -> T> Mdct1D<T, F> {
     /// The \\(\sqrt{\frac 2 n}\\) scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
+    /// use chfft::Mdct1D;
     ///
     /// let input = [2.0 as f64, 0.0, 1.0, 1.0, 0.0, 3.0, 2.0, 4.0];
     ///
-    /// let mut mdct = chfft::Mdct1D::with_sine(input.len() << 1);
+    /// let mut mdct = Mdct1D::with_sine(input.len() << 1);
     /// let output = mdct.backward(&input);
     /// ```
     pub fn backwardu(&mut self, source: &[T]) -> Vec<T> {
@@ -469,5 +468,25 @@ mod tests {
             mdct.setup(i << 2);
             test_with_len(&mut mdct, i << 2, &sine_window);
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length() {
+        let _ = Mdct1D::<f64, _>::new(sine_window, 10);
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length_convert() {
+        let mut fft = Mdct1D::<f64, _>::new(sine_window, 8);
+        let _ = fft.forward(&(0..).take(10).flat_map(cast::<_, _>).collect::<Vec<_>>());
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid length")]
+    fn invalid_length_convert_back() {
+        let mut fft = Mdct1D::<f64, _>::new(sine_window, 8);
+        let _ = fft.backward(&(0..).take(8).flat_map(cast::<_, _>).collect::<Vec<_>>());
     }
 }

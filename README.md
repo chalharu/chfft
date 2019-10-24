@@ -26,8 +26,6 @@ See the [crate documentation](https://docs.rs/chfft/) for more details.
 ### Examples
 
 ```rust
-extern crate chfft;
-extern crate num_complex;
 use num_complex::Complex;
 use chfft::CFft1D;
 
