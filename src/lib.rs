@@ -8,6 +8,9 @@
 //! version 2.0 (the "License"). You can obtain a copy of the License at
 //! http://mozilla.org/MPL/2.0/ .
 
+#[cfg(not(any(feature = "std", feature = "libm")))]
+compile_error!("Either feature 'std' or feature 'libm' must be enabled for 'chfft' to work");
+
 #[cfg(not(feature = "std"))]
 #[macro_use]
 extern crate alloc;

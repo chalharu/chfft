@@ -16,7 +16,7 @@ bench = false
 test = true
 
 [dependencies]
-num-traits = { version = "0.2.8", default-features = false, features = ["libm"] }
+num-traits = { version = "0.2.8", default-features = false }
 num-complex = { version = "0.2.3", default-features = false }
 
 [dev-dependencies]
@@ -31,6 +31,7 @@ features=["complex"]
 default = ["std"]
 docs = []
 std = ["num-traits/std", "num-complex/std"]
+libm = ["num-traits/libm"]
 
 [patch.crates-io]
 num-traits = { git = "https://github.com/rust-num/num-traits.git" }
