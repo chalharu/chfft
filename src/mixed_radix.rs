@@ -12,6 +12,9 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::one;
 use num_traits::{cast, NumAssign};
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 #[derive(Debug)]
 pub(crate) struct MixedRadixData<T> {
     pub(crate) ids: Vec<usize>,

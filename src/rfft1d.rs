@@ -12,6 +12,9 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 /// Perform a real-to-complex one-dimensional Fourier transform
 ///
 /// <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>

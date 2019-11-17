@@ -12,6 +12,9 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use num_traits::NumAssign;
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
 #[derive(Debug)]
 pub(crate) struct ChirpzData<T> {
     pub(crate) level: usize,

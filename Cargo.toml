@@ -16,16 +16,19 @@ bench = false
 test = true
 
 [dependencies]
-num-traits = ">=0.0.0"
-num-complex = ">=0.0.0"
+num-traits = { version = "0.2.9", default-features = false }
+num-complex = { version = "0.2.3", default-features = false }
 
 [dev-dependencies]
-rand = ">=0.7.0"
-rand_xorshift = ">=0.2.0"
+rand = "0.7.2"
+rand_xorshift = "0.2.0"
 
 [dev-dependencies.appro-eq]
-version=">=0.0.0"
+version= "0.3.0"
 features=["complex"]
 
 [features]
+default = ["std"]
 docs = []
+std = ["num-traits/std", "num-complex/std"]
+libm = ["num-traits/libm"]
