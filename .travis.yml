@@ -70,7 +70,10 @@ script:
     ghp-import -n target/doc
   fi
 - |
-  if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+  if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
+     [ "${TRAVIS_PULL_REQUEST}" = "false" ] &&
+     [ "${TRAVIS_EVENT_TYPE}" = "push" ] &&
+     [ -n "${CRATES_TOKEN}" ] ; then
     cargo login ${CRATES_TOKEN} &&
     cargo package
   fi
@@ -79,9 +82,11 @@ after_success:
 - |
   if [ "${TRAVIS_OS_NAME}" = "linux" ] &&
      [ "${TRAVIS_RUST_VERSION}" = "stable" ] &&
-     [ "${TRAVIS_BRANCH}" = "master" ] &&
+     [ "${TRAVIS_BRANCH}" = "release" ] &&
      [ "${TRAVIS_PULL_REQUEST}" = "false" ] &&
-     [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
+     [ "${TRAVIS_EVENT_TYPE}" = "push" ] &&
+     [ -n "${CRATES_TOKEN}" ] &&
+     [ -n "${GH_TOKEN}" ]; then
     git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages &&
     cargo publish
   fi
