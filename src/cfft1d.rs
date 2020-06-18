@@ -485,9 +485,9 @@ mod tests {
                 (1..source.len()).fold(source[0], |x, j| {
                     x + source[j]
                         * Complex::<T>::from_polar(
-                            &one(),
-                            &(-cast::<_, T>(2 * i * j).unwrap() * T::PI()
-                                / cast(source.len()).unwrap()),
+                            one(),
+                            -cast::<_, T>(2 * i * j).unwrap() * T::PI()
+                                / cast(source.len()).unwrap(),
                         )
                 }) * scalar
             })

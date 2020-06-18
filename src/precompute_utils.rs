@@ -15,8 +15,8 @@ use std::cmp;
 #[inline]
 pub(crate) fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Complex<T> {
     Complex::from_polar(
-        &one(),
-        &(cast::<_, T>(-2.0).unwrap() * T::PI() / cast(len).unwrap() * cast(position).unwrap()),
+        one(),
+        cast::<_, T>(-2.0).unwrap() * T::PI() / cast(len).unwrap() * cast(position).unwrap(),
     )
 }
 
