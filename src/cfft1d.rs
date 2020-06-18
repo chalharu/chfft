@@ -15,6 +15,7 @@ use num_traits::float::{Float, FloatConst};
 use num_traits::identities::{one, zero};
 use num_traits::{cast, NumAssign};
 
+#[derive(Debug)]
 enum WorkData<T> {
     MixedRadix(mixed_radix::MixedRadixData<T>),
     ChirpZ(chirpz::ChirpzData<T>),
@@ -36,8 +37,6 @@ enum WorkData<T> {
 /// # Example
 ///
 /// ```rust
-/// extern crate chfft;
-/// extern crate num_complex;
 /// use num_complex::Complex;
 /// use chfft::CFft1D;
 ///
@@ -52,6 +51,7 @@ enum WorkData<T> {
 ///     println!("the transform of {:?} is {:?}", input, output);
 /// }
 /// ```
+#[derive(Debug)]
 pub struct CFft1D<T> {
     len: usize,
     scaler_n: T,
@@ -259,13 +259,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.forward(&input);
     /// ```
     pub fn forward(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -275,13 +275,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The 1 scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.forward0(&input);
     /// ```
     pub fn forward0(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -291,13 +291,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The \\(\frac 1 {\sqrt n}\\) scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.forwardu(&input);
     /// ```
     pub fn forwardu(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -308,13 +308,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The \\(\frac 1 {n}\\) scaling factor forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.forwardn(&input);
     /// ```
     pub fn forwardn(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -325,13 +325,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The \\(\frac 1 n\\) scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.backward(&input);
     /// ```
     pub fn backward(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -342,13 +342,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The 1 scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.backward0(&input);
     /// ```
     pub fn backward0(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -358,13 +358,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The \\(\frac 1 {\sqrt n}\\) scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.backwardu(&input);
     /// ```
     pub fn backwardu(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -375,13 +375,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The \\(\frac 1 n\\) scaling factor backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// let output = fft.backwardn(&input);
     /// ```
     pub fn backwardn(&mut self, source: &[Complex<T>]) -> Vec<Complex<T>> {
@@ -392,13 +392,13 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The 1 scaling factor and in-place forward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let mut input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let mut input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// fft.forward0i(&mut input);
     /// ```
     pub fn forward0i(&mut self, source: &mut [Complex<T>]) {
@@ -408,17 +408,51 @@ impl<T: Float + FloatConst + NumAssign> CFft1D<T> {
     /// The 1 scaling factor and in-place backward transform
     ///
     /// ```rust
-    /// extern crate chfft;
-    /// extern crate num_complex;
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
     ///
-    /// let mut input = [num_complex::Complex::new(2.0, 0.0), num_complex::Complex::new(1.0, 1.0),
-    ///              num_complex::Complex::new(0.0, 3.0), num_complex::Complex::new(2.0, 4.0)];
+    /// let mut input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
     ///
-    /// let mut fft = chfft::CFft1D::<f64>::with_len(input.len());
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
     /// fft.backward0i(&mut input);
     /// ```
     pub fn backward0i(&mut self, source: &mut [Complex<T>]) {
         self.convert_inplace(source, true, one());
+    }
+
+    /// The \\(\frac 1 {\sqrt n}\\) scaling factor and in-place forward transform
+    ///
+    /// ```rust
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
+    ///
+    /// let mut input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
+    ///
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
+    /// fft.forwardui(&mut input);
+    /// ```
+    pub fn forwardui(&mut self, source: &mut [Complex<T>]) {
+        let scaler = self.scaler_u;
+        self.convert_inplace(source, false, scaler);
+    }
+
+    /// The \\(\frac 1 {\sqrt n}\\) scaling factor and in-place backward transform
+    ///
+    /// ```rust
+    /// use chfft::CFft1D;
+    /// use num_complex::Complex;
+    ///
+    /// let mut input = [Complex::new(2.0, 0.0), Complex::new(1.0, 1.0),
+    ///              Complex::new(0.0, 3.0), Complex::new(2.0, 4.0)];
+    ///
+    /// let mut fft = CFft1D::<f64>::with_len(input.len());
+    /// fft.backwardui(&mut input);
+    /// ```
+    pub fn backwardui(&mut self, source: &mut [Complex<T>]) {
+        let scaler = self.scaler_u;
+        self.convert_inplace(source, true, scaler);
     }
 }
 
@@ -451,9 +485,9 @@ mod tests {
                 (1..source.len()).fold(source[0], |x, j| {
                     x + source[j]
                         * Complex::<T>::from_polar(
-                            &one(),
-                            &(-cast::<_, T>(2 * i * j).unwrap() * T::PI()
-                                / cast(source.len()).unwrap()),
+                            one(),
+                            -cast::<_, T>(2 * i * j).unwrap() * T::PI()
+                                / cast(source.len()).unwrap(),
                         )
                 }) * scalar
             })
@@ -497,6 +531,15 @@ mod tests {
 
         let mut actual = fft.forwardn(source);
         fft.backward0i(&mut actual);
+        assert_appro_eq(source, &actual);
+
+        let expected = fft.forwardu(source);
+        let mut actual = source.to_vec();
+        fft.forwardui(&mut actual);
+        assert_appro_eq(&expected, &actual);
+
+        let mut actual = fft.forwardu(source);
+        fft.backwardui(&mut actual);
         assert_appro_eq(source, &actual);
     }
 

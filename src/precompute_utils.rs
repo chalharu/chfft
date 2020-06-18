@@ -13,15 +13,15 @@ use num_traits::identities::one;
 use std::cmp;
 
 #[inline]
-pub fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Complex<T> {
+pub(crate) fn calc_omega_item<T: Float + FloatConst>(len: usize, position: usize) -> Complex<T> {
     Complex::from_polar(
-        &one(),
-        &(cast::<_, T>(-2.0).unwrap() * T::PI() / cast(len).unwrap() * cast(position).unwrap()),
+        one(),
+        cast::<_, T>(-2.0).unwrap() * T::PI() / cast(len).unwrap() * cast(position).unwrap(),
     )
 }
 
 // ωの事前計算
-pub fn calc_omega<T: Float + FloatConst>(len: usize) -> Vec<Complex<T>> {
+pub(crate) fn calc_omega<T: Float + FloatConst>(len: usize) -> Vec<Complex<T>> {
     let mut omega = Vec::with_capacity(len + 1);
     omega.push(one());
     if len.trailing_zeros() >= 2 {
@@ -68,7 +68,7 @@ pub fn calc_omega<T: Float + FloatConst>(len: usize) -> Vec<Complex<T>> {
 }
 
 #[inline]
-pub fn calc_bitreverse(len: usize, factors: &[Factor]) -> Vec<usize> {
+pub(crate) fn calc_bitreverse(len: usize, factors: &[Factor]) -> Vec<usize> {
     // ビットリバースの計算
     let mut ids = Vec::<usize>::with_capacity(len);
     let mut llen = 1_usize;
@@ -91,7 +91,7 @@ pub fn calc_bitreverse(len: usize, factors: &[Factor]) -> Vec<usize> {
 }
 
 #[inline]
-pub fn calc_bitreverse2inplace(source: Vec<usize>) -> Vec<usize> {
+pub(crate) fn calc_bitreverse2inplace(source: Vec<usize>) -> Vec<usize> {
     let mut nums = (0..source.len()).collect::<Vec<_>>();
 
     (0..source.len())
