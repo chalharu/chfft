@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["chfft"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"chfft/enum.DctType.html\" title=\"enum chfft::DctType\">DctType</a>","synthetic":false,"types":["chfft::dct1d::DctType"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
