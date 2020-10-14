@@ -29,3 +29,6 @@ features=["complex"]
 
 [features]
 docs = []
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
