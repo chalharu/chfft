@@ -14,8 +14,6 @@ use num_traits::{cast, NumAssign};
 
 /// Perform a real-to-complex one-dimensional Fourier transform
 ///
-/// <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
-///
 /// # Example
 ///
 /// ```rust
