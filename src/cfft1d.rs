@@ -24,7 +24,6 @@ enum WorkData<T> {
 
 /// Perform a complex-to-complex one-dimensional Fourier transform
 ///
-/// <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
 /// When X is input array and Y is output array,
 /// the forward discrete Fourier transform of the one-dimensional array is
 ///

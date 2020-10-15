@@ -14,8 +14,6 @@ use num_traits::{cast, one, NumAssign};
 
 /// Perform a Modified discrete cosine transform
 ///
-/// <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
-///
 /// # Example
 ///
 /// ```rust
