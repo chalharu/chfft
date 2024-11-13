@@ -1,0 +1,16 @@
+name: Renovate config CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'renovate.json5?'
+      - '.github/renovate.json5?'
+      - '.gitlab/renovate.json5?'
+      - '.renovaterc'
+      - '.renovaterc.json5?'
+      - 'package.json'
+
+jobs:
+  build:
+    uses: chalharu/workflows/.github/workflows/renovate-ci.yaml@main
