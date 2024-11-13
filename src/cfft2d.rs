@@ -13,8 +13,6 @@ use num_traits::{cast, NumAssign};
 
 /// Perform a complex-to-complex two-dimensional Fourier transform
 ///
-/// <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
-///
 /// # Example
 ///
 /// ```rust
