@@ -12,4 +12,4 @@ on:
 
 jobs:
   build:
-    uses: chalharu/workflows/.github/workflows/rust-ci.yaml@main
+    uses: chalharu/workflows/.github/workflows/rust-ci.yaml@bb7d80df12b3efd7d5b4f0611beaff68176c0747 # main
