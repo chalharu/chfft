@@ -13,4 +13,4 @@ on:
 
 jobs:
   build:
-    uses: chalharu/workflows/.github/workflows/renovate-ci.yaml@07caefa48d3f0171aee2b0bb8f398bfc5d13a1ea # main
+    uses: chalharu/workflows/.github/workflows/renovate-ci.yaml@3bfec781162b1745d44899e5b7ea562eeb4107a7 # main
